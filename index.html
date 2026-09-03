@@ -8,28 +8,34 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;700;900&family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
-    /* 3차시 "역사법정" 컨셉 — history26 개별 웹앱 공통 기준선(책 페이지: 세리프 본문 +
-       얇은 괘선 + 작은 radius + 옅은 그림자)은 그대로 두고, 강조색만 새로 짬.
-       검사=인장 벽돌색(혐의), 변호인=청자색(고려 정체성), 배심원=고금 갈금색(중립·역할선택 전
-       기본값도 겸함). crusades(십자군, navy+ochre)와 겹치지 않도록 새로 골랐음.
-       (판사 역할은 효니 요청으로 v2에서 제거 — 자색 토큰도 같이 뺌) */
-    --paper:#efe8d8;
-    --page:#fbf6e9;
-    --ink:#231d1a;
-    --sub:#6c5d4d;
-    --rule:#d7c8a4;
-    --cover:#221512;
-    --cover-line:#7c6a3f;
+    /* 3차시 "역사법정" 컨셉, 2026-09-03 리디자인 — 고려 관복제(광종 4년, 960)의 자삼(자색,
+       4품 이상)·단삼(붉은빛, 6품 이상)·녹삼(9품 이상) 위계색과, 청자·인주(관인 붉은 인주)
+       같은 실제 고려 물질문화에서 악센트를 가져왔다. 자색은 "권문세족이 독점한 바로 그
+       고위 관직색"이라 역할에 매어두지 않고 화면 전체의 기본 색(헤더·역할 정하기 전 화면·
+       핵심질문 박스)으로 씀 — 역할을 맡기 전엔 법정 자체를, 역할을 맡으면 그 역할의 색을
+       보게 되는 구조. 검사=주색(관인을 찍는 붉은 인주, 고발·낙관의 색), 변호인=청자색
+       (고려 자기의 대표색, "고려다움"으로 방어하는 쪽), 배심원=지질에 가까운 갈금색
+       (원자료를 있는 그대로 읽는 중립). 책 페이지 기준선(세리프 본문·얇은 괘선·작은
+       radius·옅은 그림자)은 history26 개별 웹앱 공통 관례 그대로 유지. */
+    --paper:#f0e6d2;
+    --page:#fbf5e6;
+    --ink:#251a1a;
+    --sub:#6d5c4a;
+    --rule:#d9c6a0;
+    --cover:#241732;
+    --cover-line:#6a5578;
 
-    --seal:#7c2b22;        /* 검사팀 — 인장 벽돌색 */
-    --seal-pale:#f2e0d9;
-    --jade:#2f5d50;        /* 변호인팀 — 청자색 */
-    --jade-pale:#dfe9e3;
-    --gold:#8a6a2f;        /* 배심원 + 역할선택 전 기본 악센트 */
-    --gold-pale:#efe4cc;
+    --vermilion:#9a3324;     /* 검사팀 — 관인 인주(붉은 도장) */
+    --vermilion-pale:#f4ded6;
+    --celadon:#2f6d63;       /* 변호인팀 — 청자색 */
+    --celadon-pale:#dcece7;
+    --brass:#8a6a2f;         /* 배심원 — 지질(종이)에 가까운 중립 */
+    --brass-pale:#efe4cc;
+    --purple:#4a2b5c;        /* 자색(4품 이상 관복) — 주제 자체의 색, 역할 선택 전 기본값 */
+    --purple-pale:#e8ddee;
 
-    --accent:var(--gold);
-    --accent-pale:var(--gold-pale);
+    --accent:var(--purple);
+    --accent-pale:var(--purple-pale);
   }
   *{box-sizing:border-box;}
   body{
@@ -44,27 +50,34 @@
   .ui{font-family:"Noto Sans KR",sans-serif;}
 
   .preview-banner{
-    background:#3a2a26; color:#f3e6d8; text-align:center;
+    background:#332240; color:#f0e6d2; text-align:center;
     font-family:"Noto Sans KR",sans-serif; font-size:12.5px; font-weight:700; letter-spacing:.3px;
     padding:9px; position:sticky; top:0; z-index:20; display:none;
   }
   .disclaimer-banner{
-    background:var(--cover); color:#e7dcc4; text-align:center;
+    background:var(--cover); color:#e3d6ec; text-align:center;
     font-family:"Noto Sans KR",sans-serif; font-size:12px; font-weight:700; letter-spacing:.2px;
     padding:9px 14px; border-bottom:1px solid var(--cover-line); line-height:1.6;
   }
 
   .header{
-    background:var(--cover); color:#f1e6cc; padding:28px 20px 22px; text-align:center;
-    border-bottom:3px solid var(--gold);
+    background:var(--cover); color:#f2e9f7; padding:26px 20px 22px; text-align:center;
+    border-bottom:3px solid var(--brass);
   }
   .header .eyebrow{
     font-family:"Noto Sans KR",sans-serif; font-size:12px; font-weight:700;
-    letter-spacing:2px; color:#cdb87a; opacity:.9;
+    letter-spacing:2px; color:#c9b2d9; opacity:.9;
   }
-  .header .header-rule{width:34px; height:1px; background:var(--gold); margin:14px auto; opacity:.8;}
+  /* 인장(도장) 하나를 관복 자색 위에 찍은 모양 — "이 법정이 다루는 게 바로 이 색이다"라는
+     시각적 선언. 이모지 대신 직접 그려서, 이 페이지에서만 보이는 표식으로 남긴다. */
+  .header-seal{
+    width:38px; height:38px; margin:12px auto 10px; border-radius:50%;
+    border:2px solid var(--brass); background:var(--purple-pale);
+    display:flex; align-items:center; justify-content:center;
+    font-family:"Noto Serif KR",serif; font-weight:900; font-size:15px; color:var(--purple);
+  }
   .header h1{margin:0 0 8px; font-size:21px; font-weight:700; line-height:1.45;}
-  .header p{margin:0; font-size:13.5px; font-style:italic; color:#c9b98f; opacity:.9;}
+  .header p{margin:0; font-size:13.5px; font-style:italic; color:#b9a0c9; opacity:.95;}
 
   .wrap{max-width:640px; margin:0 auto; padding:20px 16px 90px;}
   .screen{display:none;}
@@ -146,8 +159,10 @@
   .pick-card.multi.selected::before{content:"✓"; color:#fbf6e9; font-size:12px; line-height:16px; text-align:center; font-weight:800;}
 
   .role-card{padding:16px 18px 16px 48px;}
-  .role-card .pick-title{font-size:16.5px;}
+  .role-card .pick-title{font-size:16.5px; display:flex; align-items:center; gap:8px;}
   .role-card::before{width:20px; height:20px; left:16px;}
+  /* 역할마다 실제로 입는 색을 미리 보여주는 작은 관복색 조각 */
+  .role-swatch{width:12px; height:12px; border-radius:50%; flex:none; box-shadow:inset 0 0 0 1px rgba(0,0,0,0.15);}
 
   textarea#bridgeOtherTxt{display:none; margin-bottom:4px;}
 
@@ -174,15 +189,15 @@
   }
   .ev-source{font-size:11.5px; font-family:"Noto Sans KR",sans-serif; color:var(--sub); opacity:.85;}
   .ev-weak{
-    margin-top:10px; font-size:13px; font-family:"Noto Sans KR",sans-serif; color:#7c2b22;
-    background:var(--seal-pale); border-radius:6px; padding:9px 12px; line-height:1.6; font-weight:700;
+    margin-top:10px; font-size:13px; font-family:"Noto Sans KR",sans-serif; color:var(--vermilion);
+    background:var(--vermilion-pale); border-radius:6px; padding:9px 12px; line-height:1.6; font-weight:700;
   }
 
   /* 어려운 용어 — 점선 밑줄, 탭하면 하단 시트에 뜻 표시 */
   .term{text-decoration:underline dotted; text-decoration-color:var(--accent); text-underline-offset:3px; cursor:pointer;}
   .term-tip{
     position:fixed; left:0; right:0; bottom:-260px; max-height:42vh; overflow-y:auto;
-    background:var(--cover); color:#e7dcc4; border-top:2px solid var(--gold);
+    background:var(--cover); color:#e3d6ec; border-top:2px solid var(--brass);
     padding:16px 18px 22px; z-index:40; transition:bottom .25s ease;
     box-shadow:0 -8px 24px rgba(0,0,0,0.25);
   }
@@ -192,7 +207,7 @@
     font-family:"Noto Sans KR",sans-serif; font-weight:800; font-size:14.5px; margin-bottom:8px;
   }
   .term-tip-head button{
-    background:none; border:1px solid var(--cover-line); color:#e7dcc4; border-radius:14px;
+    background:none; border:1px solid var(--cover-line); color:#e3d6ec; border-radius:14px;
     padding:5px 13px; font-family:"Noto Sans KR",sans-serif; font-size:12px; cursor:pointer;
   }
   .term-tip-body{font-size:14.5px; line-height:1.75; font-family:"Noto Sans KR",sans-serif;}
@@ -211,8 +226,8 @@
     border-radius:6px; padding:14px 10px; font-family:"Noto Sans KR",sans-serif; font-size:15px;
     font-weight:800; color:var(--ink); cursor:pointer; min-height:50px;
   }
-  .vote-btn.just.selected{border-color:var(--jade); background:var(--jade-pale); color:var(--jade);}
-  .vote-btn.unjust.selected{border-color:var(--seal); background:var(--seal-pale); color:var(--seal);}
+  .vote-btn.just.selected{border-color:var(--celadon); background:var(--celadon-pale); color:var(--celadon);}
+  .vote-btn.unjust.selected{border-color:var(--vermilion); background:var(--vermilion-pale); color:var(--vermilion);}
 
   .hint-toggle{
     display:inline-flex; align-items:center; gap:6px;
@@ -232,10 +247,10 @@
     flex:1; text-align:center; padding:12px 8px; border-radius:6px; border:1.5px solid var(--rule);
     font-family:"Noto Sans KR",sans-serif; font-weight:800; font-size:14.5px; cursor:pointer; background:var(--page);
   }
-  .phase-tab.pros{color:var(--seal);}
-  .phase-tab.def{color:var(--jade);}
-  .phase-tab.pros.active{background:var(--seal-pale); border-color:var(--seal);}
-  .phase-tab.def.active{background:var(--jade-pale); border-color:var(--jade);}
+  .phase-tab.pros{color:var(--vermilion);}
+  .phase-tab.def{color:var(--celadon);}
+  .phase-tab.pros.active{background:var(--vermilion-pale); border-color:var(--vermilion);}
+  .phase-tab.def.active{background:var(--celadon-pale); border-color:var(--celadon);}
   .phase-block{transition:opacity .2s ease;}
   .phase-block.dim{opacity:.4; pointer-events:none;}
 
@@ -268,7 +283,7 @@
     background:var(--paper); border:1px dashed var(--rule); border-radius:6px; padding:14px 16px;
     font-family:"Noto Sans KR",sans-serif; font-size:13.5px; color:var(--sub); margin-top:14px; line-height:1.7;
   }
-  .err-txt{color:var(--seal); font-family:"Noto Sans KR",sans-serif; font-size:13px; font-weight:700; min-height:18px; margin-top:8px;}
+  .err-txt{color:var(--vermilion); font-family:"Noto Sans KR",sans-serif; font-size:13px; font-weight:700; min-height:18px; margin-top:8px;}
 
   @media (min-width:760px){ body{font-size:17.5px;} }
 </style>
@@ -280,7 +295,7 @@
 
 <div class="header">
   <div class="eyebrow">3학년 한국사 · 원 간섭기와 고려 후기 · 3차시</div>
-  <div class="header-rule"></div>
+  <div class="header-seal">法</div>
   <h1>역사법정: 권문세족의 성장</h1>
   <p>정당한 성공이었을까, 부당한 특권이었을까?</p>
 </div>
@@ -609,11 +624,11 @@ function parseBan_(sid){
 
 /* ── 역할 정보 (판사 역할은 효니 요청으로 v2에서 제거) ── */
 const ROLE_INFO = {
-  prosecution: { label:"검사팀", emoji:"⚖️", accent:"var(--seal)", accentPale:"var(--seal-pale)",
+  prosecution: { label:"검사팀", emoji:"⚖️", accent:"var(--vermilion)", accentPale:"var(--vermilion-pale)",
     desc:"권문세족의 권력 획득이 부당했다는 걸 사료로 입증해야 해." },
-  defense:     { label:"변호인팀", emoji:"🛡️", accent:"var(--jade)", accentPale:"var(--jade-pale)",
+  defense:     { label:"변호인팀", emoji:"🛡️", accent:"var(--celadon)", accentPale:"var(--celadon-pale)",
     desc:"같은 사료를 다르게 읽어서 권문세족을 변호해야 해." },
-  jury:        { label:"배심원", emoji:"📜", accent:"var(--gold)", accentPale:"var(--gold-pale)",
+  jury:        { label:"배심원", emoji:"📜", accent:"var(--brass)", accentPale:"var(--brass-pale)",
     desc:"가공하지 않은 원자료를 직접 보고 판결을 내려야 해." }
 };
 
@@ -907,7 +922,7 @@ Object.keys(ROLE_INFO).forEach(key=>{
   const card = document.createElement("div");
   card.className = "pick-card role-card";
   card.dataset.role = key;
-  card.innerHTML = `<div class="pick-title">${info.emoji} ${info.label}</div><div class="pick-desc">${info.desc}</div>`;
+  card.innerHTML = `<div class="pick-title"><span class="role-swatch" style="background:${info.accent};"></span>${info.emoji} ${info.label}</div><div class="pick-desc">${info.desc}</div>`;
   card.addEventListener("click", ()=>{
     document.querySelectorAll("#rolePick .pick-card").forEach(c=>c.classList.remove("selected"));
     card.classList.add("selected");

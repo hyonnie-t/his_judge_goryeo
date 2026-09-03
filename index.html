@@ -10,10 +10,9 @@
   :root{
     /* 3차시 "역사법정" 컨셉 — history26 개별 웹앱 공통 기준선(책 페이지: 세리프 본문 +
        얇은 괘선 + 작은 radius + 옅은 그림자)은 그대로 두고, 강조색만 새로 짬.
-       법정=혐의/변호/판결 3자 구도라서 역할마다 다른 악센트가 필요했음 — 인장 벽돌색(검사·혐의),
-       청자색(변호·고려 정체성), 고금 갈금색(배심원·중립), 자색(판사·관직 위계, 자색 공복은
-       고려·조선 관제에서 실제 고위 관직 색이라 "권문세족의 관직 독점" 주제와도 맞음).
-       crusades(십자군, navy+ochre)와 겹치지 않도록 네 색 다 새로 골랐음. */
+       검사=인장 벽돌색(혐의), 변호인=청자색(고려 정체성), 배심원=고금 갈금색(중립·역할선택 전
+       기본값도 겸함). crusades(십자군, navy+ochre)와 겹치지 않도록 새로 골랐음.
+       (판사 역할은 효니 요청으로 v2에서 제거 — 자색 토큰도 같이 뺌) */
     --paper:#efe8d8;
     --page:#fbf6e9;
     --ink:#231d1a;
@@ -22,16 +21,14 @@
     --cover:#221512;
     --cover-line:#7c6a3f;
 
-    --seal:#7c2b22;        /* 검사팀 — 인장 벽돌색(혐의) */
+    --seal:#7c2b22;        /* 검사팀 — 인장 벽돌색 */
     --seal-pale:#f2e0d9;
-    --jade:#2f5d50;        /* 변호인팀 — 청자색(고려 정체성) */
+    --jade:#2f5d50;        /* 변호인팀 — 청자색 */
     --jade-pale:#dfe9e3;
-    --gold:#8a6a2f;        /* 배심원 — 고금 갈금색(중립) */
+    --gold:#8a6a2f;        /* 배심원 + 역할선택 전 기본 악센트 */
     --gold-pale:#efe4cc;
-    --purple:#4b2e5c;      /* 판사(반장) — 자색(관직 위계) */
-    --purple-pale:#e6ddec;
 
-    --accent:var(--gold);      /* 역할 미정 상태 기본값 */
+    --accent:var(--gold);
     --accent-pale:var(--gold-pale);
   }
   *{box-sizing:border-box;}
@@ -52,9 +49,6 @@
     padding:9px; position:sticky; top:0; z-index:20; display:none;
   }
   .disclaimer-banner{
-    /* 화면 전환마다 최상단으로 스크롤되므로 static이어도 매번 다시 보임. 이 문구는
-       "이건 실제 유죄판결이 아니라 수업 장치"라는 절대 원칙을 항상 노출시키는 역할이라
-       스킵 불가능한 자리에 고정해둠. */
     background:var(--cover); color:#e7dcc4; text-align:center;
     font-family:"Noto Sans KR",sans-serif; font-size:12px; font-weight:700; letter-spacing:.2px;
     padding:9px 14px; border-bottom:1px solid var(--cover-line); line-height:1.6;
@@ -95,6 +89,10 @@
     font-size:17.5px; font-weight:700; line-height:1.6; padding:16px 18px; margin:12px 0;
     background:var(--paper); border-left:3px solid var(--accent); border-radius:0 6px 6px 0;
   }
+  .recap-box{
+    font-family:"Noto Sans KR",sans-serif; font-size:14px; color:var(--sub); background:var(--paper);
+    border-radius:6px; padding:11px 14px; margin:4px 0 6px; line-height:1.7;
+  }
 
   label{
     display:block; font-family:"Noto Sans KR",sans-serif; font-weight:700; color:var(--sub);
@@ -121,9 +119,8 @@
   .btn-primary{background:var(--accent); color:#fbf6e9; box-shadow:0 3px 10px rgba(35,29,26,0.22);}
   .btn-primary:disabled{background:#cdbfa2; color:#fff8ea; cursor:not-allowed; box-shadow:none;}
   .btn-outline{background:transparent; color:var(--accent); border:1.5px solid var(--accent);}
-  .btn-ghost{background:transparent; color:var(--sub); border:1px dashed var(--rule); font-weight:700;}
 
-  /* 라디오/선택 카드 (역할·브릿지 선택 등 공용) */
+  /* 라디오형 선택 카드 (역할·브릿지 선택 등 공용) */
   .pick-list{display:flex; flex-direction:column; gap:10px; margin:14px 0 4px;}
   .pick-card{
     position:relative; border:1px solid var(--rule); border-radius:6px; padding:14px 16px 14px 44px;
@@ -149,13 +146,13 @@
   .ev-card{background:var(--page); border:1px solid var(--rule); border-radius:6px; padding:16px 18px; margin-bottom:12px;}
   .ev-card .ev-label{
     font-family:"Noto Sans KR",sans-serif; font-size:12px; font-weight:800; letter-spacing:.3px;
-    color:var(--sub); margin-bottom:8px; display:flex; justify-content:space-between; gap:8px; flex-wrap:wrap;
+    color:var(--sub); margin-bottom:8px;
   }
   .ev-frame{
     font-family:"Noto Sans KR",sans-serif; font-size:13.5px; font-weight:700; color:var(--accent);
     margin-bottom:8px; line-height:1.6;
   }
-  .ev-text{font-size:15.5px; line-height:1.75;}
+  .ev-text{font-size:15.5px; line-height:1.8;}
   .ev-note{
     margin-top:10px; font-size:13px; font-family:"Noto Sans KR",sans-serif; color:var(--sub);
     background:var(--paper); border-left:3px solid var(--rule); border-radius:0 6px 6px 0; padding:9px 12px; line-height:1.6;
@@ -166,6 +163,25 @@
     background:var(--seal-pale); border-radius:6px; padding:9px 12px; line-height:1.6; font-weight:700;
   }
 
+  /* 어려운 용어 — 점선 밑줄, 탭하면 하단 시트에 뜻 표시 */
+  .term{text-decoration:underline dotted; text-decoration-color:var(--accent); text-underline-offset:3px; cursor:pointer;}
+  .term-tip{
+    position:fixed; left:0; right:0; bottom:-260px; max-height:42vh; overflow-y:auto;
+    background:var(--cover); color:#e7dcc4; border-top:2px solid var(--gold);
+    padding:16px 18px 22px; z-index:40; transition:bottom .25s ease;
+    box-shadow:0 -8px 24px rgba(0,0,0,0.25);
+  }
+  .term-tip.open{bottom:0;}
+  .term-tip-head{
+    display:flex; justify-content:space-between; align-items:center;
+    font-family:"Noto Sans KR",sans-serif; font-weight:800; font-size:14.5px; margin-bottom:8px;
+  }
+  .term-tip-head button{
+    background:none; border:1px solid var(--cover-line); color:#e7dcc4; border-radius:14px;
+    padding:5px 13px; font-family:"Noto Sans KR",sans-serif; font-size:12px; cursor:pointer;
+  }
+  .term-tip-body{font-size:14.5px; line-height:1.75; font-family:"Noto Sans KR",sans-serif;}
+
   .checklist{display:flex; flex-direction:column; gap:8px; margin:14px 0 4px;}
   .check-row{
     display:flex; gap:10px; align-items:flex-start; font-family:"Noto Sans KR",sans-serif; font-size:14px;
@@ -173,14 +189,15 @@
   }
   .check-row input{width:18px; height:18px; margin-top:2px; accent-color:var(--accent); flex:none;}
 
-  .compare-pick{display:flex; gap:8px; margin:14px 0 4px;}
-  .verdict-btn{
+  /* 두 갈래 투표 버튼 — 1차 투표 / 배심원 판결 / 최종 입장, 세 화면에서 공용 */
+  .vote-pick{display:flex; gap:8px; margin:14px 0 4px;}
+  .vote-btn{
     flex:1 1 0; text-align:center; background:var(--page); border:1.5px solid var(--rule);
     border-radius:6px; padding:14px 10px; font-family:"Noto Sans KR",sans-serif; font-size:15px;
     font-weight:800; color:var(--ink); cursor:pointer; min-height:50px;
   }
-  .verdict-btn.guilty.selected{border-color:var(--seal); background:var(--seal-pale); color:var(--seal);}
-  .verdict-btn.notguilty.selected{border-color:var(--jade); background:var(--jade-pale); color:var(--jade);}
+  .vote-btn.just.selected{border-color:var(--jade); background:var(--jade-pale); color:var(--jade);}
+  .vote-btn.unjust.selected{border-color:var(--seal); background:var(--seal-pale); color:var(--seal);}
 
   .hint-toggle{
     display:inline-flex; align-items:center; gap:6px;
@@ -193,27 +210,6 @@
     padding:13px 15px; font-size:14px; font-style:italic; color:var(--sub); margin-top:8px; line-height:1.7;
   }
   .hint-box.open{display:block;}
-
-  /* 판사 집계 막대 */
-  .tally-bar{
-    display:flex; height:34px; border-radius:6px; overflow:hidden; border:1px solid var(--rule); margin:14px 0 10px;
-  }
-  .tally-seg{display:flex; align-items:center; justify-content:center; font-family:"Noto Sans KR",sans-serif;
-    font-size:12.5px; font-weight:800; color:#fbf6e9; min-width:0;}
-  .tally-seg.guilty{background:var(--seal);}
-  .tally-seg.notguilty{background:var(--jade);}
-  .tally-legend{display:flex; justify-content:space-between; font-family:"Noto Sans KR",sans-serif; font-size:12.5px;
-    color:var(--sub); margin-bottom:6px;}
-  .jury-item{
-    border:1px solid var(--rule); border-radius:6px; padding:12px 14px; margin-bottom:8px; background:var(--page);
-  }
-  .jury-item .ji-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;
-    font-family:"Noto Sans KR",sans-serif; font-size:13px; font-weight:800;}
-  .ji-tag{padding:2px 9px; border-radius:10px; font-size:11.5px; font-weight:800;}
-  .ji-tag.guilty{background:var(--seal-pale); color:var(--seal);}
-  .ji-tag.notguilty{background:var(--jade-pale); color:var(--jade);}
-  .jury-item .ji-body{font-size:14px; line-height:1.65;}
-  .jury-item .ji-body b{font-family:"Noto Sans KR",sans-serif; font-weight:700; color:var(--sub); font-size:12.5px;}
 
   .final-msg{text-align:center;}
   .final-msg .rank{font-size:30px; margin-bottom:8px;}
@@ -254,17 +250,20 @@
     </div>
   </div>
 
-  <!-- 1. 도입: 맥락 + 핵심질문 + 고지 -->
+  <!-- 1. 도입 -->
   <div class="screen" id="screen-intro">
     <div class="card">
       <span class="badge-chip">법정에 들어가기 전에</span>
       <h2>지난 시간까지: 원 간섭기</h2>
-      <p class="sub">영토 상실, 정동행성을 통한 내정간섭, 부마국 지위로 낮아진 국가 위상, 공물·공녀 같은 수탈까지 —
-        고려는 원의 간섭 아래 여러 문제를 겪었어. 오늘은 그 틈에서 새롭게 성장한 세력, <b>권문세족</b>을 법정에 세워볼 거야.</p>
+      <p class="sub">영토 상실, <span class="term" data-term="정동행성">정동행성</span>을 통한 내정간섭,
+        <span class="term" data-term="부마국">부마국</span> 지위로 낮아진 국가 위상, 공물·공녀 같은 수탈까지 —
+        고려는 원의 간섭 아래 여러 문제를 겪었어. 오늘은 그 틈에서 새롭게 성장한 세력,
+        <span class="term" data-term="권문세족">권문세족</span>을 법정에 세워볼 거야.</p>
       <div class="core-q">권문세족의 권력 획득, 정당한 성공이었을까, 부당한 특권이었을까?</div>
       <p class="sub">⚠️ 미리 알아둘 것 — 이 법정은 실제 역사적으로 "유죄/무죄"를 가리는 자리가 아니야. 사료를 근거로
         판단하고, 그 판단에 이유를 붙이는 연습을 하는 수업 장치야. 권문세족을 무조건 "나쁜 사람들"로 단정 짓기 전에,
-        왕권이 약해지고 국가 위상이 낮아진 시대 상황도 함께 고려해야 해.</p>
+        왕권이 약해지고 국가 위상이 낮아진 시대 상황도 함께 고려해야 해. 어려운 단어에는 점선 밑줄이 있어 —
+        눌러보면 뜻이 나와.</p>
       <button class="btn btn-primary" id="toBridgeBtn">다음</button>
     </div>
   </div>
@@ -279,12 +278,26 @@
       <div class="pick-list" id="bridgePick"></div>
       <textarea id="bridgeOtherTxt" placeholder="어떤 문제인지 직접 써줘"></textarea>
       <label>왜 그걸 골랐어?</label>
-      <textarea id="bridgeReasonTxt" placeholder="이유를 써줘 (선택만 하고 이유를 안 쓰면 제출이 안 돼)"></textarea>
-      <button class="btn btn-primary" id="toRoleBtn" disabled>다음</button>
+      <textarea id="bridgeReasonTxt" placeholder="이유를 써줘 (선택만 하고 이유를 안 쓰면 다음으로 못 가)"></textarea>
+      <button class="btn btn-primary" id="toFirstVoteBtn" disabled>다음</button>
     </div>
   </div>
 
-  <!-- 3. 역할 확인/선택 -->
+  <!-- 3. 1차 투표 -->
+  <div class="screen" id="screen-firstvote">
+    <div class="card">
+      <span class="badge-chip">법정 열기 전 · 1차 투표</span>
+      <h2>지금 딱 보면, 권문세족의 권력 획득은?</h2>
+      <p class="sub">아직 자세한 증거는 안 봤어. 첫 느낌대로 골라봐 — 이 선택은 법정이 끝난 뒤에 다시 물어볼 거야.</p>
+      <div class="vote-pick" id="firstVotePick">
+        <div class="vote-btn just" id="firstVoteJustBtn">정당한 성공</div>
+        <div class="vote-btn unjust" id="firstVoteUnjustBtn">부당한 특권</div>
+      </div>
+      <button class="btn btn-primary" id="toRoleFromVoteBtn" disabled>다음</button>
+    </div>
+  </div>
+
+  <!-- 4. 역할 확인/선택 -->
   <div class="screen" id="screen-role">
     <div class="card" id="roleAutoCard" style="display:none;">
       <span class="badge-chip">역할 배정</span>
@@ -299,18 +312,6 @@
         — 검사팀·변호인팀은 선생님이 미리 지정한 학생만 맡는 역할이야.</p>
       <div class="pick-list" id="rolePick"></div>
       <button class="btn btn-primary" id="toRoleFlowBtn" disabled>이 역할로 시작하기</button>
-    </div>
-  </div>
-
-  <!-- 4. 판사 접근 코드 -->
-  <div class="screen" id="screen-judge-gate">
-    <div class="card">
-      <span class="badge-chip">판사(반장) 전용</span>
-      <h2>접근 코드를 입력해줘</h2>
-      <p class="sub">선생님에게 받은 코드를 입력하면 배심원 전체 판결 집계를 볼 수 있어.</p>
-      <input type="text" id="judgeCodeTxt" placeholder="접근 코드">
-      <div class="err-txt" id="judgeCodeErr"></div>
-      <button class="btn btn-primary" id="judgeCodeBtn">확인</button>
     </div>
   </div>
 
@@ -330,7 +331,7 @@
       <div class="hint-box" id="teamHintBox"></div>
       <div class="role-lock">🎙️ 법정 실연 순서: 검사팀 발언(1분) → 변호인팀 발언(1분). 교사 없이 팀끼리 순서대로
         진행하면 돼 — 위에 정리한 메모를 보면서 말하면 돼.</div>
-      <button class="btn btn-primary" id="teamSubmitBtn" disabled>발언 메모 제출하기</button>
+      <button class="btn btn-primary" id="teamNextBtn" disabled>법정 실연 마쳤으면 다음</button>
     </div>
   </div>
 
@@ -357,9 +358,9 @@
       <p class="sub">아래 구조를 따라 써봐. 정답은 없어 — 근거를 얼마나 사료에 붙여서 설명하는지가 중요해.</p>
 
       <label>나는...</label>
-      <div class="compare-pick">
-        <div class="verdict-btn guilty" id="verdictGuiltyBtn">유죄</div>
-        <div class="verdict-btn notguilty" id="verdictNotGuiltyBtn">무죄</div>
+      <div class="vote-pick" id="verdictPick">
+        <div class="vote-btn just" id="verdictJustBtn">정당한 성공</div>
+        <div class="vote-btn unjust" id="verdictUnjustBtn">부당한 특권</div>
       </div>
 
       <label>왜냐하면 (어떤 사료·근거를 봤는지)</label>
@@ -368,25 +369,25 @@
       <label>다만, 반대 증거도 있다는 걸 고려하면…</label>
       <textarea id="verdictCounterTxt" placeholder="예: 조인규는 3년 동안 혼자 공부했다는 점에서..."></textarea>
 
-      <button class="btn btn-primary" id="verdictSubmitBtn" disabled>판결문 제출하기</button>
+      <button class="btn btn-primary" id="verdictNextBtn" disabled>다음</button>
     </div>
   </div>
 
-  <!-- 8. 판사: 집계 -->
-  <div class="screen" id="screen-judge-tally">
+  <!-- 8. 최종 입장 (공용) -->
+  <div class="screen" id="screen-final">
     <div class="card">
-      <span class="badge-chip">판사(반장) · 집계</span>
-      <h2>배심원 전체 판결 집계</h2>
-      <p class="tally-legend"><span id="tallyGuiltyLabel">유죄 0명</span><span id="tallyNotGuiltyLabel">무죄 0명</span></p>
-      <div class="tally-bar" id="tallyBar"></div>
-      <button class="btn btn-outline" id="tallyRefreshBtn">🔄 새로고침</button>
-      <div id="tallyList" style="margin-top:14px;"></div>
-    </div>
-    <div class="card">
-      <h3>학급 대표 판결문</h3>
-      <p class="sub">배심원들의 판결과 이유를 참고해서, 우리 반을 대표하는 판결문 한 줄을 정리해봐.</p>
-      <textarea id="judgeLineTxt" placeholder="예: 권문세족의 권력 획득은..."></textarea>
-      <button class="btn btn-primary" id="judgeSubmitBtn" disabled>학급 대표 판결문 제출하기</button>
+      <span class="badge-chip">마지막으로 · 자기 입장 정리</span>
+      <h2>지금 네 입장을 정리해봐</h2>
+      <div class="recap-box" id="finalRecap"></div>
+      <label>지금 다시 고른다면?</label>
+      <div class="vote-pick" id="finalVotePick">
+        <div class="vote-btn just" id="finalVoteJustBtn">정당한 성공</div>
+        <div class="vote-btn unjust" id="finalVoteUnjustBtn">부당한 특권</div>
+      </div>
+      <label>1차 투표와 비교해서, 왜 그렇게 생각해?</label>
+      <p class="sub">같아졌으면 왜 그대로인지, 바뀌었으면 뭘 보고 바뀌었는지 써봐. 역할을 하면서 본 자료를 근거로 들면 좋아.</p>
+      <textarea id="finalReasonTxt" placeholder="예: 1차 때는 ~라서 정당한 성공이라고 봤는데, 지금은..."></textarea>
+      <button class="btn btn-primary" id="finalSubmitBtn" disabled>제출하기</button>
     </div>
   </div>
 
@@ -401,42 +402,50 @@
 
 </div>
 
+<div class="term-tip" id="termTip">
+  <div class="term-tip-head"><span id="termTipTitle"></span><button type="button" id="termTipClose">닫기</button></div>
+  <div class="term-tip-body" id="termTipBody"></div>
+</div>
+
 <script>
 /* ════════════════════════════════════════════════════════
  * CONFIG
  * ════════════════════════════════════════════════════════ */
 const CONFIG = {
   SHEET_WEBAPP_URL: "https://script.google.com/macros/s/AKfycbyXSjCfWY_HiZFqW_OBR-FQDoIfF1z_STqyKWUI31MacHeY3u7hbirFSFDvW-5yuUHaJQ/exec",
-  GAME_NAME: "3차시_권문세족_역사법정",   // config.js CURRICULUM/커리큘럼 시트의 activity id와 반드시 일치시킬 것
-  // 판사(반장) 화면 접근 코드 — 별도 토큰 로직 없이, 교사가 반장 2명에게 구두로 알려주는 방식.
-  // 포털 교사 TOKEN과 무관한, 이 웹앱 전용의 가벼운 코드.
-  JUDGE_CODE: "명재판"
+  GAME_NAME: "3차시_권문세족_역사법정"   // config.js CURRICULUM/커리큘럼 시트의 activity id와 반드시 일치시킬 것
 };
 
-/* 학번(학년1+반2+번호2, 5자리) 파싱. history26 포털 parseStudentId와 동일 규칙. */
-function parseSid_(sid){
-  const digits = String(sid || "").trim();
-  if (!/^\d{5}$/.test(digits)) return null;
-  return { grade: digits.slice(0,1), ban: digits.slice(1,3), num: digits.slice(3,5) };
-}
-/* 배심원 판결을 학급 단위로 묶는 groupId. 그룹 조정 없이 학번만으로 같은 반 학생끼리
-   자동으로 같은 그룹에 묶이게 함(그룹 임시공유 시트, mode=group). */
-function juryGroupId_(sid){
-  const p = parseSid_(sid);
-  return p ? `gwonmun_${p.grade}${p.ban}` : null;
-}
-
-/* ── 역할 정보 ── */
+/* ── 역할 정보 (판사 역할은 효니 요청으로 v2에서 제거) ── */
 const ROLE_INFO = {
   prosecution: { label:"검사팀", emoji:"⚖️", accent:"var(--seal)", accentPale:"var(--seal-pale)",
     desc:"권문세족의 권력 획득이 부당했다는 걸 사료로 입증해야 해." },
   defense:     { label:"변호인팀", emoji:"🛡️", accent:"var(--jade)", accentPale:"var(--jade-pale)",
     desc:"같은 사료를 다르게 읽어서 권문세족을 변호해야 해." },
   jury:        { label:"배심원", emoji:"📜", accent:"var(--gold)", accentPale:"var(--gold-pale)",
-    desc:"가공하지 않은 원자료를 직접 보고 판결을 내려야 해." },
-  judge:       { label:"판사(반장)", emoji:"🔨", accent:"var(--purple)", accentPale:"var(--purple-pale)",
-    desc:"배심원 전체 판결을 모아 학급 대표 판결문을 정리해야 해." }
+    desc:"가공하지 않은 원자료를 직접 보고 판결을 내려야 해." }
 };
+
+/* ── 어려운 용어 사전 — 본문 중 밑줄 친 단어를 누르면 하단 시트에 뜻이 뜸 ── */
+const GLOSSARY = {
+  "권문세족": "원 간섭기에 원에 기대어 성장한 새 지배 세력. 높은 관직을 독점하고 권력을 대물림했다.",
+  "정동행성": "원이 고려에 설치해 내정을 간섭한 관청.",
+  "부마국": "원의 공주와 결혼한 국왕이 다스리는 나라 — 원에 종속된 지위를 뜻한다.",
+  "음서": "부모·조상의 공로 덕분에 시험 없이 자손이 관직에 오르는 제도.",
+  "반원개혁": "원의 간섭에서 벗어나려 한 개혁. 4차시에서 공민왕이 본격적으로 시행함.",
+  "중서성": "원의 중앙 행정 최고 관청.",
+  "입성책동": "고려를 없애고 원의 한 지방 행정구역(행성)으로 편입시키자는 시도.",
+  "간악한 도당": "간사하고 나쁜 무리라는 뜻 — 특정 개인을 지목한 표현은 아니다.",
+  "제국대장공주": "충렬왕과 혼인한 원 쿠빌라이 칸의 딸.",
+  "기황후": "기철의 여동생. 원 순제의 제2황후가 됐다.",
+  "교서": "왕이 신하나 백성에게 내리는 공식 문서."
+};
+function escapeReg_(s){ return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); }
+const GLOSSARY_RE = new RegExp(Object.keys(GLOSSARY).sort((a,b)=>b.length-a.length).map(escapeReg_).join("|"), "g");
+function glossify_(str){
+  if (!str) return str;
+  return str.replace(GLOSSARY_RE, m => `<span class="term" data-term="${m}">${m}</span>`);
+}
 
 /* ── 증거 원문 (교과서 96쪽 + 국사편찬위원회 우리역사넷 교차 확인 완료, 변형 금지) ── */
 const EV = {
@@ -487,15 +496,40 @@ const BRIDGE_OPTIONS = [
 let studentId = "", studentName = "", PREVIEW = false;
 let selectedRole = null;
 let bridge = { id:"", label:"", other:"", reason:"" };
+let firstVote = "", finalVote = "", finalReason = "";
 let teamMemo = "";
 let jury = { verdict:"", reason:"", counter:"" };
-let judgeTally = { guilty:0, notguilty:0, list:[] };
 
 /* ── 화면 전환 ── */
 function showScreen(id){
   document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
   document.getElementById(id).classList.add("active");
   window.scrollTo({ top:0, behavior:"smooth" });
+}
+
+/* ── 어려운 용어 하단 시트 ── */
+document.addEventListener("click", (e)=>{
+  const t = e.target.closest(".term");
+  if (!t) return;
+  const term = t.dataset.term;
+  const def = GLOSSARY[term];
+  if (!def) return;
+  document.getElementById("termTipTitle").textContent = term;
+  document.getElementById("termTipBody").textContent = def;
+  document.getElementById("termTip").classList.add("open");
+});
+document.getElementById("termTipClose").addEventListener("click", ()=>{
+  document.getElementById("termTip").classList.remove("open");
+});
+
+/* ── 두 갈래 투표 버튼 공용 배선 ── */
+function wireVotePair_(justBtn, unjustBtn, onPick){
+  justBtn.addEventListener("click", ()=>{
+    justBtn.classList.add("selected"); unjustBtn.classList.remove("selected"); onPick("정당한 성공");
+  });
+  unjustBtn.addEventListener("click", ()=>{
+    unjustBtn.classList.add("selected"); justBtn.classList.remove("selected"); onPick("부당한 특권");
+  });
 }
 
 /* ── 0. 시작 ── */
@@ -519,7 +553,7 @@ document.getElementById("toBridgeBtn").addEventListener("click", ()=> showScreen
 const bridgePick = document.getElementById("bridgePick");
 const bridgeOtherTxt = document.getElementById("bridgeOtherTxt");
 const bridgeReasonTxt = document.getElementById("bridgeReasonTxt");
-const toRoleBtn = document.getElementById("toRoleBtn");
+const toFirstVoteBtn = document.getElementById("toFirstVoteBtn");
 
 BRIDGE_OPTIONS.forEach(opt=>{
   const card = document.createElement("div");
@@ -540,17 +574,25 @@ function checkBridge(){
   const opt = BRIDGE_OPTIONS.find(o=>o.id===bridge.id);
   const otherOk = !opt || !opt.free || bridgeOtherTxt.value.trim().length > 0;
   const reasonOk = bridgeReasonTxt.value.trim().length >= 10;
-  toRoleBtn.disabled = !(bridge.id && otherOk && reasonOk);
+  toFirstVoteBtn.disabled = !(bridge.id && otherOk && reasonOk);
 }
 [bridgeOtherTxt, bridgeReasonTxt].forEach(el=>el.addEventListener("input", checkBridge));
-
-toRoleBtn.addEventListener("click", ()=>{
+toFirstVoteBtn.addEventListener("click", ()=>{
   bridge.other = bridgeOtherTxt.value.trim();
   bridge.reason = bridgeReasonTxt.value.trim();
-  enterRoleScreen();
+  showScreen("screen-firstvote");
 });
 
-/* ── 3. 역할 확인/선택 ── */
+/* ── 3. 1차 투표 ── */
+const toRoleFromVoteBtn = document.getElementById("toRoleFromVoteBtn");
+wireVotePair_(
+  document.getElementById("firstVoteJustBtn"),
+  document.getElementById("firstVoteUnjustBtn"),
+  (v)=>{ firstVote = v; toRoleFromVoteBtn.disabled = false; }
+);
+toRoleFromVoteBtn.addEventListener("click", enterRoleScreen);
+
+/* ── 4. 역할 확인/선택 ── */
 const roleAutoCard = document.getElementById("roleAutoCard");
 const rolePickCard = document.getElementById("rolePickCard");
 const rolePick = document.getElementById("rolePick");
@@ -601,9 +643,7 @@ function setAccent_(role){
 
 function routeToRoleFlow(){
   setAccent_(selectedRole);
-  if (selectedRole === "judge") {
-    showScreen("screen-judge-gate");
-  } else if (selectedRole === "prosecution" || selectedRole === "defense") {
+  if (selectedRole === "prosecution" || selectedRole === "defense") {
     renderTeamScreen();
     showScreen("screen-team");
   } else {
@@ -612,29 +652,18 @@ function routeToRoleFlow(){
   }
 }
 
-/* ── 4. 판사 접근 코드 ── */
-document.getElementById("judgeCodeBtn").addEventListener("click", ()=>{
-  const val = document.getElementById("judgeCodeTxt").value.trim();
-  if (val === CONFIG.JUDGE_CODE) {
-    document.getElementById("judgeCodeErr").textContent = "";
-    renderJudgeTally();
-    showScreen("screen-judge-tally");
-  } else {
-    document.getElementById("judgeCodeErr").textContent = "코드가 맞지 않아. 선생님에게 다시 확인해줘.";
-  }
-});
-
 /* ── 5. 검사/변호인 공용 화면 ── */
 function evCardHtml_(frame, ev, opts){
   opts = opts || {};
-  const noteHtml = ev.note ? `<div class="ev-note">📎 ${ev.note}</div>` : "";
-  const weakHtml = opts.weak ? `<div class="ev-weak">⚠️ ${opts.weak}</div>` : "";
+  const bodyText = ev.text || ((ev.p1 || "") + " " + (ev.p2 || ""));
+  const noteHtml = ev.note ? `<div class="ev-note">📎 ${glossify_(ev.note)}</div>` : "";
+  const weakHtml = opts.weak ? `<div class="ev-weak">⚠️ ${glossify_(opts.weak)}</div>` : "";
   const sourceHtml = ev.source ? `<div class="ev-source" style="margin-top:6px;">출처: ${ev.source}</div>` : "";
   return `
     <div class="ev-card">
       <div class="ev-label"><span>${ev.label}</span></div>
-      <div class="ev-frame">🗣 ${frame}</div>
-      <div class="ev-text">"${ev.text || (ev.p1 + " " + ev.p2)}"</div>
+      <div class="ev-frame">🗣 ${glossify_(frame)}</div>
+      <div class="ev-text">"${glossify_(bodyText)}"</div>
       ${noteHtml}${weakHtml}${sourceHtml}
     </div>`;
 }
@@ -685,14 +714,14 @@ document.getElementById("teamHintToggle").addEventListener("click", ()=>{
   document.getElementById("teamHintBox").classList.toggle("open");
 });
 const teamMemoTxt = document.getElementById("teamMemoTxt");
-const teamSubmitBtn = document.getElementById("teamSubmitBtn");
+const teamNextBtn = document.getElementById("teamNextBtn");
 function checkTeamMemo(){
-  teamSubmitBtn.disabled = teamMemoTxt.value.trim().length < 20;
+  teamNextBtn.disabled = teamMemoTxt.value.trim().length < 20;
 }
 teamMemoTxt.addEventListener("input", checkTeamMemo);
-teamSubmitBtn.addEventListener("click", async ()=>{
+teamNextBtn.addEventListener("click", ()=>{
   teamMemo = teamMemoTxt.value.trim();
-  await submitTeam_();
+  enterFinalScreen_();
 });
 
 /* ── 6. 배심원: 원자료 ── */
@@ -725,108 +754,50 @@ function renderJuryEvidence(){
 document.getElementById("toJuryVerdictBtn").addEventListener("click", ()=> showScreen("screen-jury-verdict"));
 
 /* ── 7. 배심원: 판결문 ── */
-const guiltyBtn = document.getElementById("verdictGuiltyBtn");
-const notGuiltyBtn = document.getElementById("verdictNotGuiltyBtn");
 const verdictReasonTxt = document.getElementById("verdictReasonTxt");
 const verdictCounterTxt = document.getElementById("verdictCounterTxt");
-const verdictSubmitBtn = document.getElementById("verdictSubmitBtn");
-
-guiltyBtn.addEventListener("click", ()=>{
-  jury.verdict = "유죄";
-  guiltyBtn.classList.add("selected");
-  notGuiltyBtn.classList.remove("selected");
-  checkVerdict();
-});
-notGuiltyBtn.addEventListener("click", ()=>{
-  jury.verdict = "무죄";
-  notGuiltyBtn.classList.add("selected");
-  guiltyBtn.classList.remove("selected");
-  checkVerdict();
-});
+const verdictNextBtn = document.getElementById("verdictNextBtn");
+wireVotePair_(
+  document.getElementById("verdictJustBtn"),
+  document.getElementById("verdictUnjustBtn"),
+  (v)=>{ jury.verdict = v; checkVerdict(); }
+);
 function checkVerdict(){
-  verdictSubmitBtn.disabled = !(jury.verdict && verdictReasonTxt.value.trim().length >= 15 && verdictCounterTxt.value.trim().length >= 10);
+  verdictNextBtn.disabled = !(jury.verdict && verdictReasonTxt.value.trim().length >= 15 && verdictCounterTxt.value.trim().length >= 10);
 }
 [verdictReasonTxt, verdictCounterTxt].forEach(el=>el.addEventListener("input", checkVerdict));
-
-verdictSubmitBtn.addEventListener("click", async ()=>{
+verdictNextBtn.addEventListener("click", ()=>{
   jury.reason = verdictReasonTxt.value.trim();
   jury.counter = verdictCounterTxt.value.trim();
-  await submitJury_();
+  enterFinalScreen_();
 });
 
-/* ── 8. 판사: 집계 ── */
-async function renderJudgeTally(){
-  const box = document.getElementById("tallyList");
-  box.innerHTML = `<p class="sub">불러오는 중...</p>`;
-  const groupId = juryGroupId_(studentId);
-  let partners = [];
-  try{
-    if (groupId && CONFIG.SHEET_WEBAPP_URL.indexOf("http") === 0) {
-      const url = `${CONFIG.SHEET_WEBAPP_URL}?mode=group&gameName=${encodeURIComponent(CONFIG.GAME_NAME)}&groupId=${encodeURIComponent(groupId)}&studentId=${encodeURIComponent(studentId)}`;
-      const res = await fetch(url);
-      const json = await res.json();
-      if (json && json.result === "success") partners = json.partners || [];
-    }
-  }catch(err){
-    console.log("집계 조회 실패:", err);
-  }
-
-  const guilty = partners.filter(p=>p.give === "유죄").length;
-  const notguilty = partners.filter(p=>p.give === "무죄").length;
-  judgeTally = { guilty, notguilty, list: partners };
-
-  document.getElementById("tallyGuiltyLabel").textContent = `유죄 ${guilty}명`;
-  document.getElementById("tallyNotGuiltyLabel").textContent = `무죄 ${notguilty}명`;
-
-  const total = Math.max(guilty + notguilty, 1);
-  const bar = document.getElementById("tallyBar");
-  bar.innerHTML = "";
-  if (guilty > 0) {
-    const seg = document.createElement("div");
-    seg.className = "tally-seg guilty";
-    seg.style.width = `${(guilty/total*100).toFixed(1)}%`;
-    seg.textContent = guilty > 0 ? `${guilty}` : "";
-    bar.appendChild(seg);
-  }
-  if (notguilty > 0) {
-    const seg = document.createElement("div");
-    seg.className = "tally-seg notguilty";
-    seg.style.width = `${(notguilty/total*100).toFixed(1)}%`;
-    seg.textContent = notguilty > 0 ? `${notguilty}` : "";
-    bar.appendChild(seg);
-  }
-
-  box.innerHTML = "";
-  if (partners.length === 0) {
-    box.innerHTML = `<p class="sub">아직 제출한 배심원이 없어. 새로고침을 눌러 다시 확인해봐.</p>`;
-  }
-  partners.forEach(p=>{
-    const tagClass = p.give === "유죄" ? "guilty" : "notguilty";
-    const item = document.createElement("div");
-    item.className = "jury-item";
-    item.innerHTML = `
-      <div class="ji-head"><span>${p.studentName || "이름 없음"}</span><span class="ji-tag ${tagClass}">${p.give || "-"}</span></div>
-      <div class="ji-body"><b>근거</b> — ${p.want || ""}</div>
-      <div class="ji-body" style="margin-top:4px;"><b>반론 인지</b> — ${p.why || ""}</div>
-    `;
-    box.appendChild(item);
-  });
-
-  checkJudgeLine();
+/* ── 8. 최종 입장 (공용) ── */
+const finalReasonTxt = document.getElementById("finalReasonTxt");
+const finalSubmitBtn = document.getElementById("finalSubmitBtn");
+wireVotePair_(
+  document.getElementById("finalVoteJustBtn"),
+  document.getElementById("finalVoteUnjustBtn"),
+  (v)=>{ finalVote = v; checkFinal(); }
+);
+function checkFinal(){
+  finalSubmitBtn.disabled = !(finalVote && finalReasonTxt.value.trim().length >= 20);
 }
-document.getElementById("tallyRefreshBtn").addEventListener("click", renderJudgeTally);
-
-const judgeLineTxt = document.getElementById("judgeLineTxt");
-const judgeSubmitBtn = document.getElementById("judgeSubmitBtn");
-function checkJudgeLine(){
-  judgeSubmitBtn.disabled = judgeLineTxt.value.trim().length < 10;
+finalReasonTxt.addEventListener("input", checkFinal);
+function enterFinalScreen_(){
+  document.getElementById("finalRecap").textContent = `1차 투표에서 너는 [${firstVote}]을 선택했었어.`;
+  finalVote = "";
+  document.querySelectorAll("#finalVotePick .vote-btn").forEach(b=>b.classList.remove("selected"));
+  finalReasonTxt.value = "";
+  checkFinal();
+  showScreen("screen-final");
 }
-judgeLineTxt.addEventListener("input", checkJudgeLine);
-judgeSubmitBtn.addEventListener("click", async ()=>{
-  await submitJudge_();
+finalSubmitBtn.addEventListener("click", async ()=>{
+  finalReason = finalReasonTxt.value.trim();
+  await submitFinal_();
 });
 
-/* ── 서버 전송 공통 ── */
+/* ── 서버 전송 ── */
 async function postJson_(payload){
   const res = await fetch(CONFIG.SHEET_WEBAPP_URL, { method:"POST", body: JSON.stringify(payload) });
   if (!res.ok) throw new Error(`서버 응답 오류 (status ${res.status})`);
@@ -838,20 +809,35 @@ function bridgeSummary_(){
   return `[0단계 선택] ${chosenLabel}\n[이유] ${bridge.reason}`;
 }
 
-async function submitTeam_(){
-  const btn = teamSubmitBtn;
+async function submitFinal_(){
+  const btn = finalSubmitBtn;
   btn.disabled = true; btn.textContent = "제출 중...";
   const info = ROLE_INFO[selectedRole];
-  const reflection = `${bridgeSummary_()}\n\n[역할] ${info.label}\n[발언 메모]\n${teamMemo}`;
+
+  let roleBlock, roleJson;
+  if (selectedRole === "prosecution" || selectedRole === "defense") {
+    roleBlock = `[발언 메모]\n${teamMemo}`;
+    roleJson = { memo: teamMemo };
+  } else {
+    roleBlock = `[배심원 판결] ${jury.verdict}\n[근거] ${jury.reason}\n[반론 인지] ${jury.counter}`;
+    roleJson = { verdict: jury.verdict, reason: jury.reason, counter: jury.counter };
+  }
+
+  const reflection =
+    `${bridgeSummary_()}\n\n[역할] ${info.label}\n${roleBlock}\n\n` +
+    `[1차 투표] ${firstVote}\n[최종 입장] ${finalVote}\n[최종 이유] ${finalReason}`;
+
   const payload = {
     gameName: CONFIG.GAME_NAME, studentId, studentName,
-    choiceSummary: `역할: ${info.label}`,
+    choiceSummary: `역할: ${info.label} · 1차: ${firstVote} · 최종: ${finalVote}`,
     reflection,
     choicesJson: JSON.stringify({
       bridgeId: bridge.id, bridgeLabel: bridge.id === "5" ? bridge.other : bridge.label, bridgeReason: bridge.reason,
-      role: selectedRole, memo: teamMemo
+      role: selectedRole, ...roleJson,
+      firstVote, finalVote, finalReason
     })
   };
+
   try{
     if (!PREVIEW) await postJson_(payload); else console.log("[미리보기] 실제 전송 안 함:", payload);
   }catch(err){
@@ -860,70 +846,8 @@ async function submitTeam_(){
     alert("기록 저장에 실패했어. 인터넷 연결을 확인하고 다시 눌러줘!");
     return;
   }
-  document.getElementById("doneTitle").textContent = `${info.emoji} ${info.label} 발언 메모 제출 완료`;
-  document.getElementById("doneDesc").textContent = "이제 법정 실연 순서에 따라 발언해봐.";
-  showScreen("screen-done");
-}
-
-async function submitJury_(){
-  const btn = verdictSubmitBtn;
-  btn.disabled = true; btn.textContent = "제출 중...";
-  const reflection = `${bridgeSummary_()}\n\n나는 [${jury.verdict}]라고 본다. 왜냐하면 ${jury.reason}. 다만 ${jury.counter}`;
-  const payload = {
-    gameName: CONFIG.GAME_NAME, studentId, studentName,
-    choiceSummary: `판결: ${jury.verdict}`,
-    reflection,
-    choicesJson: JSON.stringify({
-      bridgeId: bridge.id, bridgeLabel: bridge.id === "5" ? bridge.other : bridge.label, bridgeReason: bridge.reason,
-      role: "jury", verdict: jury.verdict, reason: jury.reason, counter: jury.counter
-    })
-  };
-  const groupId = juryGroupId_(studentId);
-  const judgmentPayload = {
-    stage: "judgment", gameName: CONFIG.GAME_NAME, groupId, studentId, studentName,
-    role: "배심원", give: jury.verdict, want: jury.reason, why: jury.counter
-  };
-  try{
-    if (!PREVIEW) {
-      await postJson_(payload);
-      if (groupId) await postJson_(judgmentPayload); // 판사 집계용 — 실패해도 개인 기록은 이미 남았으니 조용히 넘어감
-    } else {
-      console.log("[미리보기] 실제 전송 안 함:", payload, judgmentPayload);
-    }
-  }catch(err){
-    console.log("전송 실패:", err);
-    btn.disabled = false; btn.textContent = "다시 제출하기";
-    alert("기록 저장에 실패했어. 인터넷 연결을 확인하고 다시 눌러줘!");
-    return;
-  }
-  document.getElementById("doneTitle").textContent = "📜 판결문 제출 완료";
-  document.getElementById("doneDesc").textContent = "판사(반장)가 전체 판결을 모아 학급 대표 판결문을 정리할 거야.";
-  showScreen("screen-done");
-}
-
-async function submitJudge_(){
-  const btn = judgeSubmitBtn;
-  btn.disabled = true; btn.textContent = "제출 중...";
-  const line = judgeLineTxt.value.trim();
-  const reflection = `[배심원 집계] 유죄 ${judgeTally.guilty}명 · 무죄 ${judgeTally.notguilty}명\n[학급 대표 판결문] ${line}`;
-  const payload = {
-    gameName: CONFIG.GAME_NAME, studentId, studentName,
-    choiceSummary: `역할: 판사(반장)`,
-    reflection,
-    choicesJson: JSON.stringify({
-      role: "judge", tally: { guilty: judgeTally.guilty, notGuilty: judgeTally.notguilty }, classVerdictLine: line
-    })
-  };
-  try{
-    if (!PREVIEW) await postJson_(payload); else console.log("[미리보기] 실제 전송 안 함:", payload);
-  }catch(err){
-    console.log("전송 실패:", err);
-    btn.disabled = false; btn.textContent = "다시 제출하기";
-    alert("기록 저장에 실패했어. 인터넷 연결을 확인하고 다시 눌러줘!");
-    return;
-  }
-  document.getElementById("doneTitle").textContent = "🔨 학급 대표 판결문 제출 완료";
-  document.getElementById("doneDesc").textContent = "이제 앞에 나가서 발표해봐.";
+  document.getElementById("doneTitle").textContent = `${info.emoji} ${info.label} 활동 제출 완료`;
+  document.getElementById("doneDesc").textContent = "수고했어. 선생님이 내용을 확인할게.";
   showScreen("screen-done");
 }
 

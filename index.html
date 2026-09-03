@@ -113,6 +113,7 @@
     resize:vertical; font-family:inherit; line-height:1.65;
   }
   textarea:disabled{background:var(--paper); color:var(--sub); opacity:.7;}
+  textarea[readonly]{background:var(--paper); color:var(--ink);}
 
   .btn{
     display:block; width:100%; padding:15px 20px; font-size:16px;
@@ -565,6 +566,15 @@
       <div style="font-weight:900; font-size:16px;" id="doneTitle">활동 제출 완료</div>
       <div class="sub" style="margin-top:4px;" id="doneDesc">선생님이 내용을 확인할게.</div>
     </div>
+
+    <div class="card">
+      <span class="badge-chip">패들렛에 옮겨 쓰기</span>
+      <h2>이 내용을 복사해서 패들렛에 붙여넣어줘</h2>
+      <textarea id="padletText" readonly style="min-height:180px;"></textarea>
+      <button class="btn btn-outline" id="copyPadletBtn">📋 패들렛에 복사하기</button>
+      <a class="btn btn-primary" id="openPadletBtn" href="#" target="_blank" rel="noopener" style="display:none; text-align:center; text-decoration:none;">🔗 패들렛으로 이동</a>
+      <p class="sub" id="padletStatus" style="text-align:center; min-height:18px; margin-top:6px;"></p>
+    </div>
   </div>
 
 </div>
@@ -580,8 +590,22 @@
  * ════════════════════════════════════════════════════════ */
 const CONFIG = {
   SHEET_WEBAPP_URL: "https://script.google.com/macros/s/AKfycbyXSjCfWY_HiZFqW_OBR-FQDoIfF1z_STqyKWUI31MacHeY3u7hbirFSFDvW-5yuUHaJQ/exec",
-  GAME_NAME: "3차시_권문세족_역사법정"   // config.js CURRICULUM/커리큘럼 시트의 activity id와 반드시 일치시킬 것
+  GAME_NAME: "3차시_권문세족_역사법정",   // config.js CURRICULUM/커리큘럼 시트의 activity id와 반드시 일치시킬 것
+  // 3학년 5~8반 패들렛(반별 상시 게시판, 이번 학기 다른 3학년 글쓰기 활동과 공용).
+  PADLET_URL_BY_BAN: {
+    5: "https://padlet.com/dy_sch03/2026-2-3-5-cewq8vec8p3ew2yn",
+    6: "https://padlet.com/dy_sch03/2026-2-3-6-2xngg3v8pstkvld9",
+    7: "https://padlet.com/dy_sch03/2026-2-3-7-8ssvnriy75f7xwxs",
+    8: "https://padlet.com/dy_sch03/2026-2-3-8-gsrz2i3ca863675l"
+  }
 };
+
+/* 학번(학년1+반2+번호2, 5자리)에서 반 번호만 뽑아낸다. history26 포털의 parseStudentId와 동일 규칙. */
+function parseBan_(sid){
+  const digits = String(sid || "").trim();
+  if (!/^\d{5}$/.test(digits)) return null;
+  return parseInt(digits.slice(1, 3), 10);
+}
 
 /* ── 역할 정보 (판사 역할은 효니 요청으로 v2에서 제거) ── */
 const ROLE_INFO = {
@@ -1351,8 +1375,56 @@ async function submitFinal_(){
   }
   document.getElementById("doneTitle").textContent = `${info.emoji} ${info.label} 활동 제출 완료`;
   document.getElementById("doneDesc").textContent = "수고했어. 선생님이 내용을 확인할게.";
+
+  document.getElementById("padletText").value = buildPadletText_();
+  document.getElementById("padletStatus").textContent = "";
+  const padletUrl = CONFIG.PADLET_URL_BY_BAN[parseBan_(studentId)];
+  const openPadletBtn = document.getElementById("openPadletBtn");
+  if (padletUrl) { openPadletBtn.href = padletUrl; openPadletBtn.style.display = "block"; }
+  else { openPadletBtn.style.display = "none"; }
+
   showScreen("screen-done");
 }
+
+/* 역할별로 패들렛에 그대로 옮겨 붙일 텍스트를 조립한다 — 검사/변호인은 발언문, 배심원은 판결문. */
+function buildPadletText_(){
+  const info = ROLE_INFO[selectedRole];
+  if (selectedRole === "prosecution" || selectedRole === "defense") {
+    const [k1, k2] = teamSelectedKeys;
+    return `[${info.label} 발언문]\n` +
+      `도입: ${scriptIntroTxt.value.trim()}\n\n` +
+      `근거1(${EV[k1].label}): ${scriptEv1Txt.value.trim()}\n\n` +
+      `근거2(${EV[k2].label}): ${scriptEv2Txt.value.trim()}\n\n` +
+      `예상 반박 대응+마무리: ${scriptRebuttalTxt.value.trim()}`;
+  }
+  return `[배심원 판결문]\n` +
+    `나는 [${jury.verdict}]라고 본다.\n` +
+    `왜냐하면 ${jury.reason}.\n` +
+    `다만, ${jury.counter}`;
+}
+
+/* ── 패들렛용 복사하기 ── */
+document.getElementById("copyPadletBtn").addEventListener("click", async ()=>{
+  const box = document.getElementById("padletText");
+  const statusEl = document.getElementById("padletStatus");
+  try{
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      await navigator.clipboard.writeText(box.value);
+    } else {
+      box.removeAttribute("readonly");
+      box.focus();
+      box.select();
+      document.execCommand("copy");
+      box.setAttribute("readonly", "true");
+    }
+    statusEl.textContent = "✅ 복사됐어! 패들렛에 붙여넣기 해봐.";
+  }catch(err){
+    statusEl.textContent = "복사가 안 됐어. 위 글을 직접 길게 눌러서 선택 후 복사해줘.";
+    box.removeAttribute("readonly");
+    box.focus();
+    box.select();
+  }
+});
 
 /* ── URL 파라미터 자동 채움 / 미리보기 모드 ──
  * 위쪽에서 선언한 const(studentIdEl 등)를 참조하므로, 반드시 그 선언과 이벤트 바인딩이

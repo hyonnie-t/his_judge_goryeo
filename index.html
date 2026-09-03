@@ -150,7 +150,7 @@
 
   textarea#bridgeOtherTxt{display:none; margin-bottom:4px;}
 
-  /* 증거 카드 */
+  /* 증거 카드 (배심원 원자료, 검사/변호인 근거 고르기에서 공용) */
   .ev-card{background:var(--page); border:1px solid var(--rule); border-radius:6px; padding:16px 18px; margin-bottom:12px;}
   .ev-card .ev-label{
     font-family:"Noto Sans KR",sans-serif; font-size:12px; font-weight:800; letter-spacing:.3px;
@@ -219,19 +219,7 @@
   }
   .hint-box.open{display:block;}
 
-  /* 타이머 */
-  .timer-box{
-    display:flex; align-items:center; justify-content:space-between; gap:12px;
-    background:var(--paper); border:1px dashed var(--rule); border-radius:6px; padding:12px 16px; margin-top:14px;
-  }
-  .timer-display{font-family:"Noto Sans KR",sans-serif; font-weight:800; font-size:22px; font-variant-numeric:tabular-nums; color:var(--accent);}
-  .timer-btn{
-    background:var(--accent); color:#fbf6e9; border:none; border-radius:6px; padding:10px 16px;
-    font-family:"Noto Sans KR",sans-serif; font-weight:700; font-size:13.5px; cursor:pointer;
-  }
-  .timer-btn:disabled{opacity:.55; cursor:not-allowed;}
-
-  /* 배심원 발언 듣기 — 팀별 탭 */
+  /* 배심원 발언 듣기 — 팀별 탭 (타이머 없이 순수 전환용) */
   .phase-tabs{display:flex; gap:8px; margin:6px 0 12px;}
   .phase-tab{
     flex:1; text-align:center; padding:12px 8px; border-radius:6px; border:1.5px solid var(--rule);
@@ -244,7 +232,7 @@
   .phase-block{transition:opacity .2s ease;}
   .phase-block.dim{opacity:.4; pointer-events:none;}
 
-  /* 접이식 메모 패널 (배심원 판결 화면) */
+  /* 접이식 참고 패널 (배심원 판결 화면의 메모, 약점 예상 화면의 근거 다시 보기) */
   .collapse-head{
     display:flex; justify-content:space-between; align-items:center; cursor:pointer;
     font-family:"Noto Sans KR",sans-serif; font-weight:800; font-size:14px; color:var(--accent);
@@ -253,7 +241,18 @@
   .collapse-body.closed{display:none;}
   .memo-recap{font-size:13.5px; color:var(--sub); font-family:"Noto Sans KR",sans-serif; line-height:1.7; margin-bottom:10px;}
   .memo-recap b{color:var(--ink); font-weight:700;}
+  .memo-recap:last-child{margin-bottom:0;}
   .memo-hint{font-size:12.5px; color:var(--sub); font-family:"Noto Sans KR",sans-serif; margin:0 0 6px;}
+
+  /* 완성된 발언문 — 법정에서 그대로 읽는 "종이" */
+  .speech-card{border-top-width:4px;}
+  .speech-body{font-size:17px; line-height:2;}
+  .speech-body .sp-num{
+    font-family:"Noto Sans KR",sans-serif; font-weight:800; color:var(--accent);
+    font-size:12.5px; letter-spacing:.3px; display:block; margin:16px 0 4px;
+  }
+  .speech-body .sp-num:first-child{margin-top:0;}
+  .speech-body p{margin:0 0 4px; white-space:pre-wrap;}
 
   .final-msg{text-align:center;}
   .final-msg .rank{font-size:30px; margin-bottom:8px;}
@@ -359,19 +358,6 @@
     </div>
   </div>
 
-  <!-- 5. 검사/변호인 — 자료 읽기 (v1과 동일, 읽기 전용) -->
-  <div class="screen" id="screen-team-read">
-    <div class="card">
-      <span class="badge-chip" id="teamReadBadge"></span>
-      <h2 id="teamReadTitle"></h2>
-      <p class="sub" id="teamReadDesc"></p>
-    </div>
-    <div id="teamReadEvidence"></div>
-    <div class="card">
-      <button class="btn btn-primary" id="teamReadNextBtn">다음</button>
-    </div>
-  </div>
-
   <!-- 5-1. 입장 확인 -->
   <div class="screen" id="screen-team-stance">
     <div class="card">
@@ -379,29 +365,43 @@
       <h2>우리 팀의 입장</h2>
       <p class="sub">검사·변호인은 역할 자체가 이미 정해진 입장이야 — 여기서 새로 고르는 게 아니라 확인만 하고 넘어가.</p>
       <div class="stance-box" id="stanceBoxTxt"></div>
-      <button class="btn btn-primary" id="toTeamPickBtn">다음</button>
+      <button class="btn btn-primary" id="toTeamEvidenceBtn">다음</button>
     </div>
   </div>
 
-  <!-- 5-2. 근거 고르기 -->
-  <div class="screen" id="screen-team-pick">
+  <!-- 5-2. 자료 보며 근거 2개 고르기 -->
+  <div class="screen" id="screen-team-evidence">
     <div class="card">
-      <span class="badge-chip">발언문 만들기 2 · 근거 고르기</span>
-      <h2>발언에 쓸 근거 자료 2개를 골라봐</h2>
-      <p class="sub">아까 본 자료 중에서 우리 주장을 뒷받침할 근거로 딱 2개만 골라줘.</p>
+      <span class="badge-chip" id="teamEvidenceBadge">발언문 만들기 2 · 근거 고르기</span>
+      <h2>자료를 읽고, 발언에 쓸 근거 2개를 골라봐</h2>
+      <p class="sub">카드를 눌러서 우리 주장을 뒷받침할 근거로 쓸 자료 딱 2개만 골라줘.</p>
       <div class="pick-list" id="teamPickList"></div>
       <div class="err-txt" id="teamPickMsg"></div>
-    </div>
-    <div id="teamReasonBlocks"></div>
-    <div class="card">
       <button class="btn btn-primary" id="teamPickNextBtn" disabled>다음</button>
     </div>
   </div>
 
-  <!-- 5-3. 약점 예상하기 -->
+  <!-- 5-3. 원문 참고하며 요약 정리 -->
+  <div class="screen" id="screen-team-reason">
+    <div class="card">
+      <span class="badge-chip">발언문 만들기 3 · 근거 정리</span>
+      <h2>고른 자료를 요약 정리해봐</h2>
+      <p class="sub">원문은 계속 보이니까 참고하면서, 자기 말로 요약하고 왜 우리 주장에 도움이 되는지 써봐.</p>
+    </div>
+    <div id="teamReasonBlocks"></div>
+    <div class="card">
+      <button class="btn btn-primary" id="teamReasonNextBtn" disabled>다음</button>
+    </div>
+  </div>
+
+  <!-- 5-4. 약점 예상하기 -->
   <div class="screen" id="screen-team-weakness">
     <div class="card">
-      <span class="badge-chip">발언문 만들기 3 · 약점 예상하기</span>
+      <div class="collapse-head" id="weaknessRecapToggle"><span>📎 내가 고른 자료 다시 보기</span><span id="weaknessRecapChevron">▾</span></div>
+      <div class="collapse-body" id="weaknessRecapBody"></div>
+    </div>
+    <div class="card">
+      <span class="badge-chip">발언문 만들기 4 · 약점 예상하기</span>
       <h2>상대팀이 우리 주장을 이걸로 공격한다면?</h2>
       <textarea id="teamWeaknessTxt" placeholder="상대가 파고들 만한 약점을 미리 생각해봐"></textarea>
       <button type="button" class="hint-toggle" id="teamWeaknessHintToggle">💡 막막하면 힌트 보기</button>
@@ -410,10 +410,10 @@
     </div>
   </div>
 
-  <!-- 5-4. 발언 대본 (4칸) + 타이머 -->
+  <!-- 5-5. 발언 대본 (4칸) -->
   <div class="screen" id="screen-team-script">
     <div class="card">
-      <span class="badge-chip">발언문 만들기 4 · 발언 대본</span>
+      <span class="badge-chip">발언문 만들기 5 · 발언 대본</span>
       <h2>4칸을 순서대로 채우면 그대로 발언 대본이 돼</h2>
       <div class="recap-box" id="scriptStanceNote"></div>
 
@@ -430,13 +430,21 @@
       <div class="recap-box" id="scriptWeaknessRecap"></div>
       <textarea id="scriptRebuttalTxt" placeholder="그럼에도 불구하고, ..."></textarea>
 
-      <div class="timer-box">
-        <span class="timer-display" id="scriptTimerDisplay">1:00</span>
-        <button type="button" class="timer-btn" id="scriptTimerBtn">발언 준비 완료 · 타이머 시작</button>
-      </div>
+      <button class="btn btn-primary" id="scriptNextBtn" disabled>발언문 완성 보기</button>
+    </div>
+  </div>
+
+  <!-- 5-6. 완성된 발언문 (법정에서 그대로 읽는 "종이") -->
+  <div class="screen" id="screen-team-speech">
+    <div class="card speech-card">
+      <span class="badge-chip">법정에서 읽을 발언문</span>
+      <h2 id="speechTitle"></h2>
+      <div class="speech-body" id="speechBody"></div>
+    </div>
+    <div class="card">
       <div class="role-lock">🎙️ 법정 실연 순서: 검사팀 발언(1분) → 변호인팀 발언(1분). 교사 없이 팀끼리 순서대로
-        진행하면 돼 — 위 대본을 보면서 말하면 돼.</div>
-      <button class="btn btn-primary" id="scriptNextBtn" disabled>법정 실연 마쳤으면 다음</button>
+        진행하면 돼 — 이 화면을 그대로 읽으면서 말하면 돼.</div>
+      <button class="btn btn-primary" id="speechNextBtn">법정 실연 마쳤으면 다음</button>
     </div>
   </div>
 
@@ -472,10 +480,6 @@
       <div class="phase-tabs">
         <div class="phase-tab pros active" id="listenProsTab">⚖️ 검사 발언 중</div>
         <div class="phase-tab def" id="listenDefTab">🛡️ 변호인 발언 중</div>
-      </div>
-      <div class="timer-box">
-        <span class="timer-display" id="listenTimerDisplay">1:00</span>
-        <span class="sub" style="margin:0;">탭을 누르면 그 팀 1분 타이머가 다시 시작돼</span>
       </div>
 
       <div class="phase-block" id="listenProsBlock">
@@ -599,6 +603,9 @@ function glossify_(str){
   if (!str) return str;
   return str.replace(GLOSSARY_RE, m => `<span class="term" data-term="${m}">${m}</span>`);
 }
+function escapeHtml_(str){
+  return String(str || "").replace(/[&<>"']/g, m => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[m]));
+}
 
 /* ── 증거 원문 (교과서 96쪽 + 국사편찬위원회 우리역사넷 교차 확인 완료, 변형 금지) ── */
 const EV = {
@@ -637,7 +644,7 @@ const EV = {
   }
 };
 
-/* ── 검사/변호인 근거 카드 — 자료 읽기 화면과 근거 고르기 화면에서 같이 씀.
+/* ── 검사/변호인 근거 카드 — 자료+선택 화면과 근거 정리 화면에서 같이 씀.
  * frame = 자료를 그 팀 관점으로 재배열한 한 줄, hint = 정답 아닌 관점 단서만. ── */
 const PROSECUTION_CARDS = [
   { key:"textbook", frame:"국왕조차 압도하는 권력, 관직 독점과 음서 세습, 개혁 저지 — 이 자체가 특권이야.",
@@ -673,6 +680,7 @@ const DEFENSE_CARDS = [
     hint:"이 말을 남긴 사람이 누구이고, 왜 남겼는지부터 봐봐." }
 ];
 function cardsFor_(role){ return role === "prosecution" ? PROSECUTION_CARDS : DEFENSE_CARDS; }
+function evBodyText_(ev){ return ev.text || ((ev.p1 || "") + " " + (ev.p2 || "")); }
 
 const TEAM_WEAKNESS_HINT = {
   prosecution: "『고려사』 사료에 이름이 직접 나와 있는 사람이 있었나?",
@@ -693,7 +701,7 @@ let selectedRole = null;
 let bridge = { id:"", label:"", other:"", reason:"" };
 let firstVote = "", finalVote = "", finalReason = "";
 let teamSelectedKeys = [];      // 5-2에서 고른 근거 자료 key 최대 2개
-let teamReasons = {};           // key -> "이 자료가 왜 도움이 될까" 서술
+let teamReasons = {};           // key -> "자기 말로 요약 + 왜 도움 되는지" 서술
 let jury = { verdict:"", reason:"", counter:"" };
 let listenPhase = "prosecution";
 
@@ -729,10 +737,19 @@ function wireVotePair_(justBtn, unjustBtn, onPick){
   });
 }
 
-/* ── 증거 카드 HTML (읽기 전용) ── */
+/* ── 접이식 패널 공용 배선 (기본 펼침) ── */
+function wireCollapse_(headId, bodyId, chevronId){
+  let open = true;
+  document.getElementById(headId).addEventListener("click", ()=>{
+    open = !open;
+    document.getElementById(bodyId).classList.toggle("closed", !open);
+    document.getElementById(chevronId).textContent = open ? "▾" : "▸";
+  });
+}
+
+/* ── 증거 카드 HTML (배심원 원자료 — 읽기 전용) ── */
 function evCardHtml_(frame, ev, opts){
   opts = opts || {};
-  const bodyText = ev.text || ((ev.p1 || "") + " " + (ev.p2 || ""));
   const noteHtml = ev.note ? `<div class="ev-note">📎 ${glossify_(ev.note)}</div>` : "";
   const weakHtml = opts.weak ? `<div class="ev-weak">⚠️ ${glossify_(opts.weak)}</div>` : "";
   const sourceHtml = ev.source ? `<div class="ev-source" style="margin-top:6px;">출처: ${ev.source}</div>` : "";
@@ -740,7 +757,7 @@ function evCardHtml_(frame, ev, opts){
     <div class="ev-card">
       <div class="ev-label"><span>${ev.label}</span></div>
       <div class="ev-frame">🗣 ${glossify_(frame)}</div>
-      <div class="ev-text">"${glossify_(bodyText)}"</div>
+      <div class="ev-text">"${glossify_(evBodyText_(ev))}"</div>
       ${noteHtml}${weakHtml}${sourceHtml}
     </div>`;
 }
@@ -857,54 +874,40 @@ function setAccent_(role){
 function routeToRoleFlow(){
   setAccent_(selectedRole);
   if (selectedRole === "prosecution" || selectedRole === "defense") {
-    renderTeamReadScreen_();
-    showScreen("screen-team-read");
+    teamSelectedKeys = [];
+    teamReasons = {};
+    document.getElementById("stanceBoxTxt").textContent =
+      selectedRole === "prosecution" ? "우리 팀의 입장: 유죄" : "우리 팀의 입장: 무죄";
+    showScreen("screen-team-stance");
   } else {
     renderJuryEvidence();
     showScreen("screen-jury-evidence");
   }
 }
 
-/* ── 5. 검사/변호인: 자료 읽기 ── */
-function renderTeamReadScreen_(){
-  const role = selectedRole;
-  const info = ROLE_INFO[role];
-  document.getElementById("teamReadBadge").textContent = `${info.emoji} ${info.label}`;
-  document.getElementById("teamReadTitle").textContent =
-    role === "prosecution" ? "혐의를 입증하라" : "반박 논거를 마련하라";
-  document.getElementById("teamReadDesc").textContent = info.desc;
-  document.getElementById("teamReadEvidence").innerHTML =
-    cardsFor_(role).map(c => evCardHtml_(c.frame, EV[c.key], c.weak ? { weak: c.weak } : undefined)).join("");
-}
-document.getElementById("teamReadNextBtn").addEventListener("click", ()=>{
-  teamSelectedKeys = [];
-  teamReasons = {};
-  document.getElementById("stanceBoxTxt").textContent =
-    selectedRole === "prosecution" ? "우리 팀의 입장: 유죄" : "우리 팀의 입장: 무죄";
-  showScreen("screen-team-stance");
-});
-
-/* ── 5-1. 입장 확인 ── */
-document.getElementById("toTeamPickBtn").addEventListener("click", ()=>{
-  renderTeamPick_();
-  document.getElementById("teamReasonBlocks").innerHTML = "";
+/* ── 5-1. 입장 확인 → 5-2로 ── */
+document.getElementById("toTeamEvidenceBtn").addEventListener("click", ()=>{
+  renderTeamEvidencePick_();
   document.getElementById("teamPickMsg").textContent = "";
   checkTeamPick();
-  showScreen("screen-team-pick");
+  showScreen("screen-team-evidence");
 });
 
-/* ── 5-2. 근거 고르기 ── */
-function renderTeamPick_(){
+/* ── 5-2. 자료 보며 근거 2개 고르기 (자료 읽기 + 선택을 한 화면에서) ── */
+function renderTeamEvidencePick_(){
   const cards = cardsFor_(selectedRole);
   const list = document.getElementById("teamPickList");
   list.innerHTML = cards.map(c=>{
     const ev = EV[c.key];
     const selected = teamSelectedKeys.includes(c.key);
-    const weakHtml = c.weak ? `<div class="ev-weak" style="margin-top:8px;">⚠️ ${glossify_(c.weak)}</div>` : "";
+    const noteHtml = ev.note ? `<div class="ev-note">📎 ${glossify_(ev.note)}</div>` : "";
+    const weakHtml = c.weak ? `<div class="ev-weak">⚠️ ${glossify_(c.weak)}</div>` : "";
+    const sourceHtml = ev.source ? `<div class="ev-source" style="margin-top:6px;">출처: ${ev.source}</div>` : "";
     return `<div class="pick-card multi ${selected ? "selected" : ""}" data-key="${c.key}">
       <div class="pick-title">${ev.label}</div>
-      <div class="pick-desc">${glossify_(c.frame)}</div>
-      ${weakHtml}
+      <div class="ev-frame">🗣 ${glossify_(c.frame)}</div>
+      <div class="ev-text">"${glossify_(evBodyText_(ev))}"</div>
+      ${noteHtml}${weakHtml}${sourceHtml}
     </div>`;
   }).join("");
   list.querySelectorAll(".pick-card").forEach(el=>{
@@ -921,49 +924,70 @@ function renderTeamPick_(){
         teamSelectedKeys.push(key);
       }
       document.getElementById("teamPickMsg").textContent = "";
-      renderTeamPick_();
-      renderTeamReasonBlocks_();
+      renderTeamEvidencePick_();
       checkTeamPick();
     });
   });
 }
-function renderTeamReasonBlocks_(){
+function checkTeamPick(){
+  document.getElementById("teamPickNextBtn").disabled = teamSelectedKeys.length !== 2;
+}
+document.getElementById("teamPickNextBtn").addEventListener("click", ()=>{
+  renderTeamReasonScreen_();
+  showScreen("screen-team-reason");
+});
+
+/* ── 5-3. 원문 참고하며 요약 정리 ── */
+function renderTeamReasonScreen_(){
   const cards = cardsFor_(selectedRole);
   const box = document.getElementById("teamReasonBlocks");
   box.innerHTML = teamSelectedKeys.map(key=>{
     const c = cards.find(x=>x.key===key);
     const ev = EV[key];
     return `
-      <div class="card" style="margin-top:10px;">
-        <h3>${ev.label}</h3>
-        <p class="sub">이 자료가 왜 우리 주장에 도움이 될까? 원문을 그대로 옮기지 말고 자기 말로 써봐.</p>
-        <textarea class="team-reason-txt" data-key="${key}" placeholder="자기 말로 설명해봐">${teamReasons[key] || ""}</textarea>
+      <div class="card">
+        <span class="badge-chip">${ev.label}</span>
+        <div class="ev-text" style="margin-bottom:12px;">"${glossify_(evBodyText_(ev))}"</div>
+        <label>이 자료를 요약하고, 왜 우리 주장에 도움이 되는지 써봐</label>
+        <p class="sub">원문을 그대로 옮기지 말고 자기 말로 정리해봐.</p>
+        <textarea class="team-reason-txt" data-key="${key}" placeholder="자기 말로 요약 + 이유">${teamReasons[key] || ""}</textarea>
         <button type="button" class="hint-toggle team-pick-hint" data-key="${key}">💡 막막하면 힌트 보기</button>
         <div class="hint-box" id="hintbox-${key}">${glossify_(c.hint)}</div>
       </div>`;
   }).join("");
   box.querySelectorAll(".team-reason-txt").forEach(t=>{
-    t.addEventListener("input", ()=>{ teamReasons[t.dataset.key] = t.value; checkTeamPick(); });
+    t.addEventListener("input", ()=>{ teamReasons[t.dataset.key] = t.value; checkTeamReason(); });
   });
   box.querySelectorAll(".team-pick-hint").forEach(btn=>{
     btn.addEventListener("click", ()=>{
       document.getElementById("hintbox-" + btn.dataset.key).classList.toggle("open");
     });
   });
+  checkTeamReason();
 }
-function checkTeamPick(){
-  const ok = teamSelectedKeys.length === 2 && teamSelectedKeys.every(k => (teamReasons[k] || "").trim().length >= 10);
-  document.getElementById("teamPickNextBtn").disabled = !ok;
+function checkTeamReason(){
+  const ok = teamSelectedKeys.every(k => (teamReasons[k] || "").trim().length >= 10);
+  document.getElementById("teamReasonNextBtn").disabled = !ok;
 }
-document.getElementById("teamPickNextBtn").addEventListener("click", ()=>{
+document.getElementById("teamReasonNextBtn").addEventListener("click", ()=>{
   document.getElementById("teamWeaknessTxt").value = "";
   document.getElementById("teamWeaknessHintBox").textContent = TEAM_WEAKNESS_HINT[selectedRole];
   document.getElementById("teamWeaknessHintBox").classList.remove("open");
+  renderWeaknessRecap_();
   checkTeamWeakness();
   showScreen("screen-team-weakness");
 });
 
-/* ── 5-3. 약점 예상하기 ── */
+/* ── 5-4. 약점 예상하기 (고른 자료 다시 보기 패널 포함) ── */
+function renderWeaknessRecap_(){
+  const box = document.getElementById("weaknessRecapBody");
+  box.innerHTML = teamSelectedKeys.map(key=>{
+    const ev = EV[key];
+    return `<div class="memo-recap"><b>${ev.label}</b><br>"${escapeHtml_(evBodyText_(ev))}"<br><i>${escapeHtml_(teamReasons[key] || "")}</i></div>`;
+  }).join("");
+}
+wireCollapse_("weaknessRecapToggle", "weaknessRecapBody", "weaknessRecapChevron");
+
 const teamWeaknessTxt = document.getElementById("teamWeaknessTxt");
 const teamWeaknessNextBtn = document.getElementById("teamWeaknessNextBtn");
 function checkTeamWeakness(){
@@ -978,7 +1002,7 @@ teamWeaknessNextBtn.addEventListener("click", ()=>{
   showScreen("screen-team-script");
 });
 
-/* ── 5-4. 발언 대본 + 타이머 ── */
+/* ── 5-5. 발언 대본 ── */
 const scriptIntroTxt = document.getElementById("scriptIntroTxt");
 const scriptEv1Txt = document.getElementById("scriptEv1Txt");
 const scriptEv2Txt = document.getElementById("scriptEv2Txt");
@@ -986,7 +1010,6 @@ const scriptRebuttalTxt = document.getElementById("scriptRebuttalTxt");
 const scriptNextBtn = document.getElementById("scriptNextBtn");
 
 function renderTeamScript_(){
-  const cards = cardsFor_(selectedRole);
   const [k1, k2] = teamSelectedKeys;
   document.getElementById("scriptStanceNote").textContent =
     selectedRole === "prosecution" ? "우리 팀의 입장: 유죄" : "우리 팀의 입장: 무죄";
@@ -997,7 +1020,6 @@ function renderTeamScript_(){
   document.getElementById("scriptWeaknessRecap").textContent = "예상 약점: " + teamWeaknessTxt.value.trim();
   if (!scriptRebuttalTxt.value.trim()) scriptRebuttalTxt.value = "그럼에도 불구하고, ";
   scriptIntroTxt.value = "";
-  resetScriptTimer_();
   checkScript();
 }
 function checkScript(){
@@ -1008,40 +1030,23 @@ function checkScript(){
   scriptNextBtn.disabled = !ok;
 }
 [scriptIntroTxt, scriptEv1Txt, scriptEv2Txt, scriptRebuttalTxt].forEach(el=>el.addEventListener("input", checkScript));
-
-let scriptTimerId = null, scriptTimeLeft = 60;
-function resetScriptTimer_(){
-  clearInterval(scriptTimerId);
-  scriptTimeLeft = 60;
-  document.getElementById("scriptTimerDisplay").textContent = "1:00";
-  const btn = document.getElementById("scriptTimerBtn");
-  btn.disabled = false;
-  btn.textContent = "발언 준비 완료 · 타이머 시작";
-}
-document.getElementById("scriptTimerBtn").addEventListener("click", ()=>{
-  clearInterval(scriptTimerId);
-  scriptTimeLeft = 60;
-  const disp = document.getElementById("scriptTimerDisplay");
-  const btn = document.getElementById("scriptTimerBtn");
-  btn.disabled = true;
-  btn.textContent = "진행 중...";
-  scriptTimerId = setInterval(()=>{
-    scriptTimeLeft--;
-    if (scriptTimeLeft <= 0) {
-      clearInterval(scriptTimerId);
-      disp.textContent = "⏰ 시간 종료";
-      btn.disabled = false;
-      btn.textContent = "다시 재기";
-      return;
-    }
-    const m = Math.floor(scriptTimeLeft / 60), s = scriptTimeLeft % 60;
-    disp.textContent = `${m}:${String(s).padStart(2, "0")}`;
-  }, 1000);
-});
 scriptNextBtn.addEventListener("click", ()=>{
-  clearInterval(scriptTimerId);
-  enterFinalScreen_();
+  renderSpeech_();
+  showScreen("screen-team-speech");
 });
+
+/* ── 5-6. 완성된 발언문 — 법정에서 그대로 읽는 화면 ── */
+function renderSpeech_(){
+  const isProsecution = selectedRole === "prosecution";
+  const [k1, k2] = teamSelectedKeys;
+  document.getElementById("speechTitle").textContent = isProsecution ? "⚖️ 검사 측 발언문" : "🛡️ 변호인 측 발언문";
+  document.getElementById("speechBody").innerHTML =
+    `<span class="sp-num">도입</span><p>${escapeHtml_(scriptIntroTxt.value.trim())}</p>` +
+    `<span class="sp-num">근거 1 — ${escapeHtml_(EV[k1].label)}</span><p>${escapeHtml_(scriptEv1Txt.value.trim())}</p>` +
+    `<span class="sp-num">근거 2 — ${escapeHtml_(EV[k2].label)}</span><p>${escapeHtml_(scriptEv2Txt.value.trim())}</p>` +
+    `<span class="sp-num">예상 반박 대응 + 마무리</span><p>${escapeHtml_(scriptRebuttalTxt.value.trim())}</p>`;
+}
+document.getElementById("speechNextBtn").addEventListener("click", enterFinalScreen_);
 
 /* ── 6. 배심원 3-1: 원자료 + 메모 ── */
 const JURY_CHECKLIST = [
@@ -1086,16 +1091,16 @@ toJuryListenBtn.addEventListener("click", ()=>{
   document.getElementById("listenDefImpressTxt").value = "";
   document.getElementById("listenDefQuestionTxt").value = "";
   activateListenPhase_("prosecution");
+  checkListenNext();
   showScreen("screen-jury-listen");
 });
 
-/* ── 6-1. 배심원 3-2: 발언 듣기 ── */
+/* ── 6-1. 배심원 3-2: 발언 듣기 (팀 탭 전환, 타이머 없음) ── */
 const listenProsImpressTxt = document.getElementById("listenProsImpressTxt");
 const listenProsQuestionTxt = document.getElementById("listenProsQuestionTxt");
 const listenDefImpressTxt = document.getElementById("listenDefImpressTxt");
 const listenDefQuestionTxt = document.getElementById("listenDefQuestionTxt");
 const toJuryVerdictBtn = document.getElementById("toJuryVerdictBtn");
-let listenTimerId = null, listenTimeLeft = 60;
 
 function activateListenPhase_(phase){
   listenPhase = phase;
@@ -1105,16 +1110,6 @@ function activateListenPhase_(phase){
   document.querySelectorAll("#listenDefBlock textarea").forEach(t=> t.disabled = phase !== "defense");
   document.getElementById("listenProsTab").classList.toggle("active", phase === "prosecution");
   document.getElementById("listenDefTab").classList.toggle("active", phase === "defense");
-  clearInterval(listenTimerId);
-  listenTimeLeft = 60;
-  const disp = document.getElementById("listenTimerDisplay");
-  disp.textContent = "1:00";
-  listenTimerId = setInterval(()=>{
-    listenTimeLeft--;
-    if (listenTimeLeft <= 0) { clearInterval(listenTimerId); disp.textContent = "⏰ 시간 종료"; return; }
-    const m = Math.floor(listenTimeLeft / 60), s = listenTimeLeft % 60;
-    disp.textContent = `${m}:${String(s).padStart(2, "0")}`;
-  }, 1000);
 }
 document.getElementById("listenProsTab").addEventListener("click", ()=> activateListenPhase_("prosecution"));
 document.getElementById("listenDefTab").addEventListener("click", ()=> activateListenPhase_("defense"));
@@ -1128,7 +1123,6 @@ function checkListenNext(){
   .forEach(el=>el.addEventListener("input", checkListenNext));
 
 toJuryVerdictBtn.addEventListener("click", ()=>{
-  clearInterval(listenTimerId);
   renderMemoPanel_();
   document.getElementById("verdictReasonTxt").value = "";
   document.getElementById("verdictCounterTxt").value = "";
@@ -1149,15 +1143,7 @@ function renderMemoPanel_(){
     <div class="memo-recap"><b>변호인 발언 — 의문이 든 점</b><br>${escapeHtml_(listenDefQuestionTxt.value.trim())}</div>
   `;
 }
-function escapeHtml_(str){
-  return String(str || "").replace(/[&<>"']/g, m => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[m]));
-}
-let memoPanelOpen = true;
-document.getElementById("memoPanelToggle").addEventListener("click", ()=>{
-  memoPanelOpen = !memoPanelOpen;
-  document.getElementById("memoPanelBody").classList.toggle("closed", !memoPanelOpen);
-  document.getElementById("memoPanelChevron").textContent = memoPanelOpen ? "▾" : "▸";
-});
+wireCollapse_("memoPanelToggle", "memoPanelBody", "memoPanelChevron");
 
 const verdictReasonTxt = document.getElementById("verdictReasonTxt");
 const verdictCounterTxt = document.getElementById("verdictCounterTxt");
@@ -1221,7 +1207,6 @@ async function submitFinal_(){
 
   let roleBlock, roleJson;
   if (selectedRole === "prosecution" || selectedRole === "defense") {
-    const cards = cardsFor_(selectedRole);
     const [k1, k2] = teamSelectedKeys;
     const intro = scriptIntroTxt.value.trim();
     const ev1 = scriptEv1Txt.value.trim();
@@ -1234,7 +1219,7 @@ async function submitFinal_(){
       `2. 근거1(${EV[k1].label}): ${ev1}\n` +
       `3. 근거2(${EV[k2].label}): ${ev2}\n` +
       `4. 예상 반박 대응+마무리: ${rebuttal}`;
-    roleBlock = `[입장] ${stance}\n[발언 대본]\n${scriptText}\n\n` +
+    roleBlock = `[입장] ${stance}\n[발언문]\n${scriptText}\n\n` +
       `[선택한 근거]\n- (${EV[k1].label}) ${teamReasons[k1] || ""}\n- (${EV[k2].label}) ${teamReasons[k2] || ""}\n\n` +
       `[예상 약점] ${weakness}`;
     roleJson = {

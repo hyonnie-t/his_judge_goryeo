@@ -1036,6 +1036,13 @@ scriptNextBtn.addEventListener("click", ()=>{
 });
 
 /* ── 5-6. 완성된 발언문 — 법정에서 그대로 읽는 화면 ── */
+function assembledScriptText_(){
+  const [k1, k2] = teamSelectedKeys;
+  return `1. 도입: ${scriptIntroTxt.value.trim()}\n` +
+    `2. 근거1(${EV[k1].label}): ${scriptEv1Txt.value.trim()}\n` +
+    `3. 근거2(${EV[k2].label}): ${scriptEv2Txt.value.trim()}\n` +
+    `4. 예상 반박 대응+마무리: ${scriptRebuttalTxt.value.trim()}`;
+}
 function renderSpeech_(){
   const isProsecution = selectedRole === "prosecution";
   const [k1, k2] = teamSelectedKeys;
@@ -1045,6 +1052,27 @@ function renderSpeech_(){
     `<span class="sp-num">근거 1 — ${escapeHtml_(EV[k1].label)}</span><p>${escapeHtml_(scriptEv1Txt.value.trim())}</p>` +
     `<span class="sp-num">근거 2 — ${escapeHtml_(EV[k2].label)}</span><p>${escapeHtml_(scriptEv2Txt.value.trim())}</p>` +
     `<span class="sp-num">예상 반박 대응 + 마무리</span><p>${escapeHtml_(scriptRebuttalTxt.value.trim())}</p>`;
+  saveSpeechDraft_(); // 최종 제출(최종 입장까지 끝내야 나감) 전에 미리 백업 — 여기서 이탈해도 기록이 남음
+}
+
+/* 발언문 초안 백업 — 최종 제출과 별개로, 화면이 뜨는 시점에 바로 한 번 저장해둔다.
+ * gameName을 커리큘럼 activity id와 다르게(접미사 _발언문초안) 둬서 진행률·포인트
+ * 계산(활동별 gameName 매칭)에는 전혀 안 잡히고, 교사가 게임활동_로그에서
+ * ?game=3차시_권문세족_역사법정_발언문초안 으로 걸러서 초안만 따로 볼 수 있다.
+ * 실패해도 조용히 무시 — 최종 제출(submitFinal_)이 진짜 기록이고 이건 백업일 뿐. */
+function saveSpeechDraft_(){
+  if (PREVIEW) return;
+  const info = ROLE_INFO[selectedRole];
+  const stance = selectedRole === "prosecution" ? "유죄(기소)" : "무죄(변론)";
+  const scriptText = assembledScriptText_();
+  const payload = {
+    gameName: CONFIG.GAME_NAME + "_발언문초안",
+    studentId, studentName,
+    choiceSummary: `역할: ${info.label} 발언문 초안`,
+    reflection: scriptText,
+    choicesJson: JSON.stringify({ role: selectedRole, stance, script: scriptText })
+  };
+  postJson_(payload).catch(err => console.log("발언문 초안 저장 실패(무시 가능):", err));
 }
 document.getElementById("speechNextBtn").addEventListener("click", enterFinalScreen_);
 
@@ -1214,11 +1242,7 @@ async function submitFinal_(){
     const rebuttal = scriptRebuttalTxt.value.trim();
     const weakness = teamWeaknessTxt.value.trim();
     const stance = selectedRole === "prosecution" ? "유죄(기소)" : "무죄(변론)";
-    const scriptText =
-      `1. 도입: ${intro}\n` +
-      `2. 근거1(${EV[k1].label}): ${ev1}\n` +
-      `3. 근거2(${EV[k2].label}): ${ev2}\n` +
-      `4. 예상 반박 대응+마무리: ${rebuttal}`;
+    const scriptText = assembledScriptText_();
     roleBlock = `[입장] ${stance}\n[발언문]\n${scriptText}\n\n` +
       `[선택한 근거]\n- (${EV[k1].label}) ${teamReasons[k1] || ""}\n- (${EV[k2].label}) ${teamReasons[k2] || ""}\n\n` +
       `[예상 약점] ${weakness}`;

@@ -156,6 +156,12 @@
     font-family:"Noto Sans KR",sans-serif; font-size:12px; font-weight:800; letter-spacing:.3px;
     color:var(--sub); margin-bottom:8px;
   }
+  /* 접었다 펼 수 있는 증거 카드 (배심원 원자료 — 메모하기 편하게 기본 접힘) */
+  .ev-toggle{display:flex; justify-content:space-between; align-items:center; cursor:pointer; margin-bottom:0;}
+  .ev-chevron{color:var(--accent); font-weight:800; font-family:"Noto Sans KR",sans-serif;}
+  .ev-card.ev-collapsed .ev-label{margin-bottom:0;}
+  .ev-card.ev-collapsed .ev-body{display:none;}
+  .ev-card .ev-body{margin-top:8px;}
   .ev-frame{
     font-family:"Noto Sans KR",sans-serif; font-size:13.5px; font-weight:700; color:var(--accent);
     margin-bottom:8px; line-height:1.6;
@@ -397,7 +403,7 @@
   <!-- 5-4. 약점 예상하기 -->
   <div class="screen" id="screen-team-weakness">
     <div class="card">
-      <div class="collapse-head" id="weaknessRecapToggle"><span>📎 내가 고른 자료 다시 보기</span><span id="weaknessRecapChevron">▾</span></div>
+      <div class="collapse-head" id="weaknessRecapToggle"><span>📚 전체 자료 다시 보기</span><span id="weaknessRecapChevron">▾</span></div>
       <div class="collapse-body" id="weaknessRecapBody"></div>
     </div>
     <div class="card">
@@ -412,6 +418,10 @@
 
   <!-- 5-5. 발언 대본 (4칸) -->
   <div class="screen" id="screen-team-script">
+    <div class="card">
+      <div class="collapse-head" id="scriptRecapToggle"><span>📚 전체 자료 다시 보기</span><span id="scriptRecapChevron">▾</span></div>
+      <div class="collapse-body closed" id="scriptRecapBody"></div>
+    </div>
     <div class="card">
       <span class="badge-chip">발언문 만들기 5 · 발언 대본</span>
       <h2>4칸을 순서대로 채우면 그대로 발언 대본이 돼</h2>
@@ -727,6 +737,16 @@ document.getElementById("termTipClose").addEventListener("click", ()=>{
   document.getElementById("termTip").classList.remove("open");
 });
 
+/* ── 증거 카드 접기/펼치기 (배심원 원자료 카드) ── */
+document.addEventListener("click", (e)=>{
+  const toggle = e.target.closest(".ev-toggle");
+  if (!toggle) return;
+  const card = toggle.closest(".ev-card");
+  card.classList.toggle("ev-collapsed");
+  const chevron = toggle.querySelector(".ev-chevron");
+  if (chevron) chevron.textContent = card.classList.contains("ev-collapsed") ? "▸" : "▾";
+});
+
 /* ── 두 갈래 투표 버튼 공용 배선 ── */
 function wireVotePair_(justBtn, unjustBtn, onPick){
   justBtn.addEventListener("click", ()=>{
@@ -737,9 +757,11 @@ function wireVotePair_(justBtn, unjustBtn, onPick){
   });
 }
 
-/* ── 접이식 패널 공용 배선 (기본 펼침) ── */
-function wireCollapse_(headId, bodyId, chevronId){
-  let open = true;
+/* ── 접이식 패널 공용 배선 (startOpen 생략하면 기본 펼침) ── */
+function wireCollapse_(headId, bodyId, chevronId, startOpen){
+  let open = startOpen !== false;
+  document.getElementById(bodyId).classList.toggle("closed", !open);
+  document.getElementById(chevronId).textContent = open ? "▾" : "▸";
   document.getElementById(headId).addEventListener("click", ()=>{
     open = !open;
     document.getElementById(bodyId).classList.toggle("closed", !open);
@@ -747,18 +769,45 @@ function wireCollapse_(headId, bodyId, chevronId){
   });
 }
 
-/* ── 증거 카드 HTML (배심원 원자료 — 읽기 전용) ── */
+/* ── 검사/변호인이 나중에 다른 자료도 참고할 수 있게 — 7개 전체를 접이식으로 ── */
+function renderFullEvidenceRecap_(bodyId){
+  const cards = cardsFor_(selectedRole);
+  document.getElementById(bodyId).innerHTML = cards.map(c=>{
+    const ev = EV[c.key];
+    const picked = teamSelectedKeys.includes(c.key);
+    const noteHtml = ev.note ? `<div class="ev-note">📎 ${glossify_(ev.note)}</div>` : "";
+    const weakHtml = c.weak ? `<div class="ev-weak">⚠️ ${glossify_(c.weak)}</div>` : "";
+    const sourceHtml = ev.source ? `<div class="ev-source" style="margin-top:6px;">출처: ${ev.source}</div>` : "";
+    return `<div class="ev-card"${picked ? ' style="border-color:var(--accent);"' : ""}>
+      <div class="ev-label"><span>${ev.label}${picked ? " · 내가 고른 자료" : ""}</span></div>
+      <div class="ev-frame">🗣 ${glossify_(c.frame)}</div>
+      <div class="ev-text">"${glossify_(evBodyText_(ev))}"</div>
+      ${noteHtml}${weakHtml}${sourceHtml}
+    </div>`;
+  }).join("");
+}
+
+/* ── 증거 카드 HTML (배심원 원자료 — 읽기 전용, opts.collapsible이면 기본 접힘) ── */
 function evCardHtml_(frame, ev, opts){
   opts = opts || {};
   const noteHtml = ev.note ? `<div class="ev-note">📎 ${glossify_(ev.note)}</div>` : "";
   const weakHtml = opts.weak ? `<div class="ev-weak">⚠️ ${glossify_(opts.weak)}</div>` : "";
   const sourceHtml = ev.source ? `<div class="ev-source" style="margin-top:6px;">출처: ${ev.source}</div>` : "";
+  const body =
+    `<div class="ev-frame">🗣 ${glossify_(frame)}</div>` +
+    `<div class="ev-text">"${glossify_(evBodyText_(ev))}"</div>` +
+    `${noteHtml}${weakHtml}${sourceHtml}`;
+  if (opts.collapsible) {
+    return `
+      <div class="ev-card ev-collapsed">
+        <div class="ev-label ev-toggle"><span>${ev.label}</span><span class="ev-chevron">▸</span></div>
+        <div class="ev-body">${body}</div>
+      </div>`;
+  }
   return `
     <div class="ev-card">
       <div class="ev-label"><span>${ev.label}</span></div>
-      <div class="ev-frame">🗣 ${glossify_(frame)}</div>
-      <div class="ev-text">"${glossify_(evBodyText_(ev))}"</div>
-      ${noteHtml}${weakHtml}${sourceHtml}
+      ${body}
     </div>`;
 }
 
@@ -973,20 +1022,15 @@ document.getElementById("teamReasonNextBtn").addEventListener("click", ()=>{
   document.getElementById("teamWeaknessTxt").value = "";
   document.getElementById("teamWeaknessHintBox").textContent = TEAM_WEAKNESS_HINT[selectedRole];
   document.getElementById("teamWeaknessHintBox").classList.remove("open");
-  renderWeaknessRecap_();
+  renderFullEvidenceRecap_("weaknessRecapBody");
   checkTeamWeakness();
   showScreen("screen-team-weakness");
 });
 
-/* ── 5-4. 약점 예상하기 (고른 자료 다시 보기 패널 포함) ── */
-function renderWeaknessRecap_(){
-  const box = document.getElementById("weaknessRecapBody");
-  box.innerHTML = teamSelectedKeys.map(key=>{
-    const ev = EV[key];
-    return `<div class="memo-recap"><b>${ev.label}</b><br>"${escapeHtml_(evBodyText_(ev))}"<br><i>${escapeHtml_(teamReasons[key] || "")}</i></div>`;
-  }).join("");
-}
+/* ── 5-4. 약점 예상하기 (전체 자료 다시 보기 패널 포함 — 내가 안 고른 자료도 상대 공격 예상에 필요) ── */
 wireCollapse_("weaknessRecapToggle", "weaknessRecapBody", "weaknessRecapChevron");
+/* ── 5-5. 발언 대본 화면에도 같은 전체 자료 패널(대본 쓰다가 다른 근거가 필요할 때) — 기본 접힘 ── */
+wireCollapse_("scriptRecapToggle", "scriptRecapBody", "scriptRecapChevron", false);
 
 const teamWeaknessTxt = document.getElementById("teamWeaknessTxt");
 const teamWeaknessNextBtn = document.getElementById("teamWeaknessNextBtn");
@@ -1010,6 +1054,7 @@ const scriptRebuttalTxt = document.getElementById("scriptRebuttalTxt");
 const scriptNextBtn = document.getElementById("scriptNextBtn");
 
 function renderTeamScript_(){
+  renderFullEvidenceRecap_("scriptRecapBody");
   const [k1, k2] = teamSelectedKeys;
   document.getElementById("scriptStanceNote").textContent =
     selectedRole === "prosecution" ? "우리 팀의 입장: 유죄" : "우리 팀의 입장: 무죄";
@@ -1085,14 +1130,15 @@ const JURY_CHECKLIST = [
 ];
 function renderJuryEvidence(){
   const box = document.getElementById("juryEvidence");
+  const co = { collapsible: true };
   box.innerHTML =
-    evCardHtml_("교과서 원문", EV.textbook) +
-    evCardHtml_("『고려사』 사료 — 이 표현은 특정 개인을 지목하지 않은 일반 표현이야.", EV.goryeosa) +
-    evCardHtml_("조인규 인터뷰", EV.jo) +
-    evCardHtml_("조인규 심화자료", EV.joDeep) +
-    evCardHtml_("인후 인터뷰", EV.in) +
-    evCardHtml_("기철 — 입성책동", EV.giInseong) +
-    evCardHtml_("기철 처형 교서", EV.giGyoseo);
+    evCardHtml_("교과서 원문", EV.textbook, co) +
+    evCardHtml_("『고려사』 사료 — 이 표현은 특정 개인을 지목하지 않은 일반 표현이야.", EV.goryeosa, co) +
+    evCardHtml_("조인규 인터뷰", EV.jo, co) +
+    evCardHtml_("조인규 심화자료", EV.joDeep, co) +
+    evCardHtml_("인후 인터뷰", EV.in, co) +
+    evCardHtml_("기철 — 입성책동", EV.giInseong, co) +
+    evCardHtml_("기철 처형 교서", EV.giGyoseo, co);
 
   const list = document.getElementById("juryChecklist");
   list.innerHTML = "";
@@ -1185,10 +1231,18 @@ function checkVerdict(){
   verdictNextBtn.disabled = !(jury.verdict && verdictReasonTxt.value.trim().length >= 15 && verdictCounterTxt.value.trim().length >= 10);
 }
 [verdictReasonTxt, verdictCounterTxt].forEach(el=>el.addEventListener("input", checkVerdict));
-verdictNextBtn.addEventListener("click", ()=>{
+verdictNextBtn.addEventListener("click", async ()=>{
   jury.reason = verdictReasonTxt.value.trim();
   jury.counter = verdictCounterTxt.value.trim();
-  enterFinalScreen_();
+  // 배심원은 판결문 자체가 최종 입장이라 "최종 입장 정리" 화면을 따로 안 거침 —
+  // 다만 firstVote/finalVote 비교 데이터는 그대로 남겨야 하니 판결을 finalVote로 그대로 씀.
+  finalVote = jury.verdict;
+  finalReason = `${jury.reason} 다만, ${jury.counter}`;
+  verdictNextBtn.disabled = true;
+  verdictNextBtn.textContent = "제출 중...";
+  await submitFinal_(); // submitFinal_은 finalSubmitBtn(안 보이는 버튼)을 갱신하므로, 실패 시 재시도할 수 있게 이 버튼도 직접 풀어준다.
+  verdictNextBtn.disabled = false;
+  verdictNextBtn.textContent = "다음";
 });
 
 /* ── 8. 최종 입장 (공용) ── */

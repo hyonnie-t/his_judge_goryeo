@@ -424,7 +424,8 @@
     </div>
     <div class="card">
       <span class="badge-chip">발언문 만들기 4 · 약점 예상하기</span>
-      <h2>상대팀이 우리 주장을 이걸로 공격한다면?</h2>
+      <h2 id="teamWeaknessTitle">상대팀이 우리 주장을 이걸로 공격한다면?</h2>
+      <p class="sub" id="teamWeaknessGuide"></p>
       <textarea id="teamWeaknessTxt" placeholder="상대가 파고들 만한 약점을 미리 생각해봐"></textarea>
       <button type="button" class="hint-toggle" id="teamWeaknessHintToggle">💡 막막하면 힌트 보기</button>
       <div class="hint-box" id="teamWeaknessHintBox"></div>
@@ -432,7 +433,7 @@
     </div>
   </div>
 
-  <!-- 5-5. 발언 대본 (4칸) -->
+  <!-- 5-5. 발언 대본 (5칸) -->
   <div class="screen" id="screen-team-script">
     <div class="card">
       <div class="collapse-head" id="scriptRecapToggle"><span>📚 전체 자료 다시 보기</span><span id="scriptRecapChevron">▾</span></div>
@@ -440,7 +441,7 @@
     </div>
     <div class="card">
       <span class="badge-chip">발언문 만들기 5 · 발언 대본</span>
-      <h2>4칸을 순서대로 채우면 그대로 발언 대본이 돼</h2>
+      <h2>5칸을 순서대로 채우면 그대로 발언 대본이 돼</h2>
       <div class="recap-box" id="scriptStanceNote"></div>
 
       <label>1. 도입 — 우리 주장 한 문장</label>
@@ -452,9 +453,15 @@
       <label id="scriptEv2Label">3. 근거 2</label>
       <textarea id="scriptEv2Txt"></textarea>
 
-      <label>4. 예상 반박 대응 + 마무리</label>
+      <label>4. 예상 반박 대응 (선택)</label>
+      <p class="sub">4단계에서 내가 예상한 약점이야 — 상대가 이 약점을 지적하면 어떻게 대응할지 아래에 써봐. 안 써도 다음으로 넘어갈 수 있어.</p>
       <div class="recap-box" id="scriptWeaknessRecap"></div>
-      <textarea id="scriptRebuttalTxt" placeholder="그럼에도 불구하고, ..."></textarea>
+      <textarea id="scriptRebuttalTxt" placeholder="예: 그 지적은 일부 맞지만, ..."></textarea>
+
+      <label>5. 마무리 — 우리 주장 다시 한번</label>
+      <p class="sub">1번 도입 문장을 그대로 가져와 다듬어도 좋아 — 발언을 강하게 맺는 방법이야.</p>
+      <button type="button" class="hint-toggle" id="scriptClosingReuseBtn">↺ 도입 문장 가져오기</button>
+      <textarea id="scriptClosingTxt" placeholder="예: 그러므로 권문세족의 권력 획득은..."></textarea>
 
       <button class="btn btn-primary" id="scriptNextBtn" disabled>발언문 완성 보기</button>
     </div>
@@ -714,9 +721,24 @@ const DEFENSE_CARDS = [
 function cardsFor_(role){ return role === "prosecution" ? PROSECUTION_CARDS : DEFENSE_CARDS; }
 function evBodyText_(ev){ return ev.text || ((ev.p1 || "") + " " + (ev.p2 || "")); }
 
+/* v2026-09-04: 약점 예상하기를 "상대 입장이 되어 직접 써보기"로 구체화 — 추상적으로
+ * "약점이 뭘까 생각해봐"라고만 하면 막막해해서, 상대 역할의 주장을 직접 쓰게 하고
+ * 그 결과물 자체가 곧 우리 쪽 약점이 되도록 안내를 바꿨다. */
+const TEAM_WEAKNESS_PROMPT = {
+  prosecution: {
+    title: "변호인은 권문세족을 어떻게 방어할까?",
+    guide: "변호인의 입장이 되어서, 권문세족이 무죄인 이유를 직접 써봐. 그렇게 써본 무죄 주장이 바로 우리(검사) 쪽이 조심해야 할 약점이야.",
+    placeholder: "예: 변호인이라면 조인규는 몽골어 실력으로 정당하게 등용됐다고 주장할 것이다..."
+  },
+  defense: {
+    title: "검사는 권문세족을 어떻게 공격할까?",
+    guide: "검사의 입장이 되어서, 권문세족이 유죄인 이유를 직접 써봐. 그렇게 써본 유죄 주장이 바로 우리(변호인) 쪽이 조심해야 할 약점이야.",
+    placeholder: "예: 검사라면 기철이 원의 권력을 등에 업고 백성을 억압했다고 주장할 것이다..."
+  }
+};
 const TEAM_WEAKNESS_HINT = {
-  prosecution: "『고려사』 사료에 이름이 직접 나와 있는 사람이 있었나?",
-  defense: "조인규가 성공한 계기가 정말 몽골어 실력 하나뿐이었을까?"
+  prosecution: "변호인 입장에서 시작해봐 — '조인규는 ~했기 때문에 정당하다'처럼, 능력이나 정당한 절차를 강조하는 문장으로.",
+  defense: "검사 입장에서 시작해봐 — '기철은 ~을 이용해 백성을 억압했다'처럼, 권력 남용이나 부당한 특권을 강조하는 문장으로."
 };
 
 const BRIDGE_OPTIONS = [
@@ -1041,7 +1063,12 @@ function checkTeamReason(){
   document.getElementById("teamReasonNextBtn").disabled = !ok;
 }
 document.getElementById("teamReasonNextBtn").addEventListener("click", ()=>{
-  document.getElementById("teamWeaknessTxt").value = "";
+  const prompt = TEAM_WEAKNESS_PROMPT[selectedRole];
+  document.getElementById("teamWeaknessTitle").textContent = prompt.title;
+  document.getElementById("teamWeaknessGuide").textContent = prompt.guide;
+  const weaknessTxt = document.getElementById("teamWeaknessTxt");
+  weaknessTxt.placeholder = prompt.placeholder;
+  weaknessTxt.value = "";
   document.getElementById("teamWeaknessHintBox").textContent = TEAM_WEAKNESS_HINT[selectedRole];
   document.getElementById("teamWeaknessHintBox").classList.remove("open");
   renderFullEvidenceRecap_("weaknessRecapBody");
@@ -1073,6 +1100,7 @@ const scriptIntroTxt = document.getElementById("scriptIntroTxt");
 const scriptEv1Txt = document.getElementById("scriptEv1Txt");
 const scriptEv2Txt = document.getElementById("scriptEv2Txt");
 const scriptRebuttalTxt = document.getElementById("scriptRebuttalTxt");
+const scriptClosingTxt = document.getElementById("scriptClosingTxt");
 const scriptNextBtn = document.getElementById("scriptNextBtn");
 
 function renderTeamScript_(){
@@ -1085,40 +1113,54 @@ function renderTeamScript_(){
   scriptEv1Txt.value = teamReasons[k1] || "";
   scriptEv2Txt.value = teamReasons[k2] || "";
   document.getElementById("scriptWeaknessRecap").textContent = "예상 약점: " + teamWeaknessTxt.value.trim();
-  if (!scriptRebuttalTxt.value.trim()) scriptRebuttalTxt.value = "그럼에도 불구하고, ";
   scriptIntroTxt.value = "";
+  scriptRebuttalTxt.value = ""; // v2026-09-04: 반박 대응은 선택으로 바뀌어서 빈 값으로 시작(예전엔 "그럼에도 불구하고, " 프리필)
+  scriptClosingTxt.value = "";
   checkScript();
 }
+/* v2026-09-04: 도입 문장을 마무리에 그대로 가져와 다듬어 쓸 수 있게 하는 버튼 —
+ * 마무리를 아예 새로 쓰게 하면 부담스러워해서, 이미 쓴 도입 문장을 재활용하도록 안내 강화. */
+document.getElementById("scriptClosingReuseBtn").addEventListener("click", ()=>{
+  if (!scriptIntroTxt.value.trim()) return;
+  scriptClosingTxt.value = scriptIntroTxt.value.trim();
+  checkScript();
+});
 function checkScript(){
   const ok = scriptIntroTxt.value.trim().length >= 5 &&
     scriptEv1Txt.value.trim().length >= 10 &&
     scriptEv2Txt.value.trim().length >= 10 &&
-    scriptRebuttalTxt.value.trim().length >= 15;
+    scriptClosingTxt.value.trim().length >= 5;
   scriptNextBtn.disabled = !ok;
 }
-[scriptIntroTxt, scriptEv1Txt, scriptEv2Txt, scriptRebuttalTxt].forEach(el=>el.addEventListener("input", checkScript));
+[scriptIntroTxt, scriptEv1Txt, scriptEv2Txt, scriptRebuttalTxt, scriptClosingTxt].forEach(el=>el.addEventListener("input", checkScript));
 scriptNextBtn.addEventListener("click", ()=>{
   renderSpeech_();
   showScreen("screen-team-speech");
 });
 
 /* ── 5-6. 완성된 발언문 — 법정에서 그대로 읽는 화면 ── */
+/* v2026-09-04: 반박 대응(4번)이 선택으로 바뀌면서 마무리(5번)와 분리됨 — 반박 대응은
+ * 비어있으면 통째로 생략하고, 마무리는 항상 필수라 그대로 둔다. */
 function assembledScriptText_(){
   const [k1, k2] = teamSelectedKeys;
+  const rebuttal = scriptRebuttalTxt.value.trim();
   return `1. 도입: ${scriptIntroTxt.value.trim()}\n` +
     `2. 근거1(${EV[k1].label}): ${scriptEv1Txt.value.trim()}\n` +
     `3. 근거2(${EV[k2].label}): ${scriptEv2Txt.value.trim()}\n` +
-    `4. 예상 반박 대응+마무리: ${scriptRebuttalTxt.value.trim()}`;
+    (rebuttal ? `4. 예상 반박 대응: ${rebuttal}\n` : "") +
+    `5. 마무리: ${scriptClosingTxt.value.trim()}`;
 }
 function renderSpeech_(){
   const isProsecution = selectedRole === "prosecution";
   const [k1, k2] = teamSelectedKeys;
+  const rebuttal = scriptRebuttalTxt.value.trim();
   document.getElementById("speechTitle").textContent = isProsecution ? "⚖️ 검사 측 발언문" : "🛡️ 변호인 측 발언문";
   document.getElementById("speechBody").innerHTML =
     `<span class="sp-num">도입</span><p>${escapeHtml_(scriptIntroTxt.value.trim())}</p>` +
     `<span class="sp-num">근거 1 — ${escapeHtml_(EV[k1].label)}</span><p>${escapeHtml_(scriptEv1Txt.value.trim())}</p>` +
     `<span class="sp-num">근거 2 — ${escapeHtml_(EV[k2].label)}</span><p>${escapeHtml_(scriptEv2Txt.value.trim())}</p>` +
-    `<span class="sp-num">예상 반박 대응 + 마무리</span><p>${escapeHtml_(scriptRebuttalTxt.value.trim())}</p>`;
+    (rebuttal ? `<span class="sp-num">예상 반박 대응</span><p>${escapeHtml_(rebuttal)}</p>` : "") +
+    `<span class="sp-num">마무리</span><p>${escapeHtml_(scriptClosingTxt.value.trim())}</p>`;
   saveSpeechDraft_(); // 제출 버튼 누르기 전에 미리 한 번 백업 — 법정 실연하러 나갔다가 안 돌아와도 발언문은 남음
 }
 
@@ -1297,6 +1339,7 @@ async function submitFinal_(){
     const ev1 = scriptEv1Txt.value.trim();
     const ev2 = scriptEv2Txt.value.trim();
     const rebuttal = scriptRebuttalTxt.value.trim();
+    const closing = scriptClosingTxt.value.trim();
     const weakness = teamWeaknessTxt.value.trim();
     const stance = selectedRole === "prosecution" ? "유죄(기소)" : "무죄(변론)";
     const scriptText = assembledScriptText_();
@@ -1310,7 +1353,7 @@ async function submitFinal_(){
         { key:k2, label:EV[k2].label, reason: teamReasons[k2] || "" }
       ],
       weakness,
-      script: { intro, evidence1: ev1, evidence2: ev2, rebuttal },
+      script: { intro, evidence1: ev1, evidence2: ev2, rebuttal, closing },
       memo: scriptText // history26_backend courtCase 취합 action이 읽는 하위 호환 필드
     };
   } else {
@@ -1368,11 +1411,13 @@ function buildPadletText_(){
   const info = ROLE_INFO[selectedRole];
   if (selectedRole === "prosecution" || selectedRole === "defense") {
     const [k1, k2] = teamSelectedKeys;
+    const rebuttal = scriptRebuttalTxt.value.trim();
     return `[${info.label} 발언문]\n` +
       `도입: ${scriptIntroTxt.value.trim()}\n\n` +
       `근거1(${EV[k1].label}): ${scriptEv1Txt.value.trim()}\n\n` +
       `근거2(${EV[k2].label}): ${scriptEv2Txt.value.trim()}\n\n` +
-      `예상 반박 대응+마무리: ${scriptRebuttalTxt.value.trim()}`;
+      (rebuttal ? `예상 반박 대응: ${rebuttal}\n\n` : "") +
+      `마무리: ${scriptClosingTxt.value.trim()}`;
   }
   return `[배심원 판결문]\n` +
     `나는 [${jury.verdict}]라고 본다.\n` +

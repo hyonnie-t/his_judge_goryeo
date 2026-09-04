@@ -219,7 +219,7 @@
   }
   .check-row input{width:18px; height:18px; margin-top:2px; accent-color:var(--accent); flex:none;}
 
-  /* 두 갈래 투표 버튼 — 1차 투표 / 배심원 판결 / 최종 입장, 세 화면에서 공용 */
+  /* 두 갈래 투표 버튼 — 1차 투표 / 배심원 판결, 두 화면에서 공용 */
   .vote-pick{display:flex; gap:8px; margin:14px 0 4px;}
   .vote-btn{
     flex:1 1 0; text-align:center; background:var(--page); border:1.5px solid var(--rule);
@@ -470,7 +470,7 @@
     <div class="card">
       <div class="role-lock">🎙️ 법정 실연 순서: 검사팀 발언(1분) → 변호인팀 발언(1분). 교사 없이 팀끼리 순서대로
         진행하면 돼 — 이 화면을 그대로 읽으면서 말하면 돼.</div>
-      <button class="btn btn-primary" id="speechNextBtn">법정 실연 마쳤으면 다음</button>
+      <button class="btn btn-primary" id="speechNextBtn">법정 실연 마쳤으면 제출하기</button>
     </div>
   </div>
 
@@ -556,23 +556,6 @@
     </div>
   </div>
 
-  <!-- 8. 최종 입장 (공용) -->
-  <div class="screen" id="screen-final">
-    <div class="card">
-      <span class="badge-chip">마지막으로 · 자기 입장 정리</span>
-      <h2>지금 네 입장을 정리해봐</h2>
-      <div class="recap-box" id="finalRecap"></div>
-      <label>지금 다시 고른다면?</label>
-      <div class="vote-pick" id="finalVotePick">
-        <div class="vote-btn just" id="finalVoteJustBtn">정당한 성공</div>
-        <div class="vote-btn unjust" id="finalVoteUnjustBtn">부당한 특권</div>
-      </div>
-      <label>1차 투표와 비교해서, 왜 그렇게 생각해?</label>
-      <p class="sub">같아졌으면 왜 그대로인지, 바뀌었으면 뭘 보고 바뀌었는지 써봐. 역할을 하면서 본 자료를 근거로 들면 좋아.</p>
-      <textarea id="finalReasonTxt" placeholder="예: 1차 때는 ~라서 정당한 성공이라고 봤는데, 지금은..."></textarea>
-      <button class="btn btn-primary" id="finalSubmitBtn" disabled>제출하기</button>
-    </div>
-  </div>
 
   <!-- 9. 완료 -->
   <div class="screen" id="screen-done">
@@ -748,7 +731,7 @@ const BRIDGE_OPTIONS = [
 let studentId = "", studentName = "", PREVIEW = false;
 let selectedRole = null;
 let bridge = { id:"", label:"", other:"", reason:"" };
-let firstVote = "", finalVote = "", finalReason = "";
+let firstVote = "";
 let teamSelectedKeys = [];      // 5-2에서 고른 근거 자료 key 최대 2개
 let teamReasons = {};           // key -> "자기 말로 요약 + 왜 도움 되는지" 서술
 let jury = { verdict:"", reason:"", counter:"" };
@@ -1136,12 +1119,12 @@ function renderSpeech_(){
     `<span class="sp-num">근거 1 — ${escapeHtml_(EV[k1].label)}</span><p>${escapeHtml_(scriptEv1Txt.value.trim())}</p>` +
     `<span class="sp-num">근거 2 — ${escapeHtml_(EV[k2].label)}</span><p>${escapeHtml_(scriptEv2Txt.value.trim())}</p>` +
     `<span class="sp-num">예상 반박 대응 + 마무리</span><p>${escapeHtml_(scriptRebuttalTxt.value.trim())}</p>`;
-  saveSpeechDraft_(); // 최종 제출(최종 입장까지 끝내야 나감) 전에 미리 백업 — 여기서 이탈해도 기록이 남음
+  saveSpeechDraft_(); // 제출 버튼 누르기 전에 미리 한 번 백업 — 법정 실연하러 나갔다가 안 돌아와도 발언문은 남음
 }
 
-/* 발언문 초안 백업 — 최종 제출과 별개로, 화면이 뜨는 시점에 바로 한 번 저장해둔다.
- * gameName을 커리큘럼 activity id와 다르게(접미사 _발언문초안) 둬서 진행률·포인트
- * 계산(활동별 gameName 매칭)에는 전혀 안 잡히고, 교사가 게임활동_로그에서
+/* 발언문 초안 백업 — 진짜 제출(submitFinal_)과 별개로, 화면이 뜨는 시점에 바로 한 번
+ * 저장해둔다. gameName을 커리큘럼 activity id와 다르게(접미사 _발언문초안) 둬서
+ * 진행률·포인트 계산(활동별 gameName 매칭)에는 전혀 안 잡히고, 교사가 게임활동_로그에서
  * ?game=3차시_권문세족_역사법정_발언문초안 으로 걸러서 초안만 따로 볼 수 있다.
  * 실패해도 조용히 무시 — 최종 제출(submitFinal_)이 진짜 기록이고 이건 백업일 뿐. */
 function saveSpeechDraft_(){
@@ -1158,7 +1141,16 @@ function saveSpeechDraft_(){
   };
   postJson_(payload).catch(err => console.log("발언문 초안 저장 실패(무시 가능):", err));
 }
-document.getElementById("speechNextBtn").addEventListener("click", enterFinalScreen_);
+document.getElementById("speechNextBtn").addEventListener("click", async ()=>{
+  // 검사/변호인은 발언문 자체가 패들렛에 나갈 최종 결과물이라 "최종 입장 정리" 화면 없이
+  // 여기서 바로 제출 — 시간이 너무 오래 걸린다는 효니 피드백으로 2026-09-04에 생략.
+  const btn = document.getElementById("speechNextBtn");
+  btn.disabled = true;
+  btn.textContent = "제출 중...";
+  await submitFinal_();
+  btn.disabled = false;
+  btn.textContent = "법정 실연 마쳤으면 제출하기";
+});
 
 /* ── 6. 배심원 3-1: 원자료 + 메모 ── */
 const JURY_CHECKLIST = [
@@ -1273,40 +1265,12 @@ function checkVerdict(){
 verdictNextBtn.addEventListener("click", async ()=>{
   jury.reason = verdictReasonTxt.value.trim();
   jury.counter = verdictCounterTxt.value.trim();
-  // 배심원은 판결문 자체가 최종 입장이라 "최종 입장 정리" 화면을 따로 안 거침 —
-  // 다만 firstVote/finalVote 비교 데이터는 그대로 남겨야 하니 판결을 finalVote로 그대로 씀.
-  finalVote = jury.verdict;
-  finalReason = `${jury.reason} 다만, ${jury.counter}`;
+  // 배심원은 판결문 자체가 최종 결과물이라 여기서 바로 제출.
   verdictNextBtn.disabled = true;
   verdictNextBtn.textContent = "제출 중...";
-  await submitFinal_(); // submitFinal_은 finalSubmitBtn(안 보이는 버튼)을 갱신하므로, 실패 시 재시도할 수 있게 이 버튼도 직접 풀어준다.
+  await submitFinal_();
   verdictNextBtn.disabled = false;
   verdictNextBtn.textContent = "다음";
-});
-
-/* ── 8. 최종 입장 (공용) ── */
-const finalReasonTxt = document.getElementById("finalReasonTxt");
-const finalSubmitBtn = document.getElementById("finalSubmitBtn");
-wireVotePair_(
-  document.getElementById("finalVoteJustBtn"),
-  document.getElementById("finalVoteUnjustBtn"),
-  (v)=>{ finalVote = v; checkFinal(); }
-);
-function checkFinal(){
-  finalSubmitBtn.disabled = !(finalVote && finalReasonTxt.value.trim().length >= 20);
-}
-finalReasonTxt.addEventListener("input", checkFinal);
-function enterFinalScreen_(){
-  document.getElementById("finalRecap").textContent = `1차 투표에서 너는 [${firstVote}]을 선택했었어.`;
-  finalVote = "";
-  document.querySelectorAll("#finalVotePick .vote-btn").forEach(b=>b.classList.remove("selected"));
-  finalReasonTxt.value = "";
-  checkFinal();
-  showScreen("screen-final");
-}
-finalSubmitBtn.addEventListener("click", async ()=>{
-  finalReason = finalReasonTxt.value.trim();
-  await submitFinal_();
 });
 
 /* ── 서버 전송 ── */
@@ -1321,9 +1285,9 @@ function bridgeSummary_(){
   return `[0단계 선택] ${chosenLabel}\n[이유] ${bridge.reason}`;
 }
 
+/* 검사·변호인은 speechNextBtn, 배심원은 verdictNextBtn이 각자 자기 버튼의 disabled/텍스트를
+ * 관리한 뒤 이 함수를 부른다 — 화면마다 제출 버튼이 다르므로 여기선 버튼을 안 건드린다. */
 async function submitFinal_(){
-  const btn = finalSubmitBtn;
-  btn.disabled = true; btn.textContent = "제출 중...";
   const info = ROLE_INFO[selectedRole];
 
   let roleBlock, roleJson;
@@ -1366,17 +1330,16 @@ async function submitFinal_(){
   }
 
   const reflection =
-    `${bridgeSummary_()}\n\n[역할] ${info.label}\n${roleBlock}\n\n` +
-    `[1차 투표] ${firstVote}\n[최종 입장] ${finalVote}\n[최종 이유] ${finalReason}`;
+    `${bridgeSummary_()}\n\n[역할] ${info.label}\n${roleBlock}\n\n[1차 투표] ${firstVote}`;
 
   const payload = {
     gameName: CONFIG.GAME_NAME, studentId, studentName,
-    choiceSummary: `역할: ${info.label} · 1차: ${firstVote} · 최종: ${finalVote}`,
+    choiceSummary: `역할: ${info.label} · 1차 투표: ${firstVote}`,
     reflection,
     choicesJson: JSON.stringify({
       bridgeId: bridge.id, bridgeLabel: bridge.id === "5" ? bridge.other : bridge.label, bridgeReason: bridge.reason,
       role: selectedRole, ...roleJson,
-      firstVote, finalVote, finalReason
+      firstVote
     })
   };
 
@@ -1384,7 +1347,6 @@ async function submitFinal_(){
     if (!PREVIEW) await postJson_(payload); else console.log("[미리보기] 실제 전송 안 함:", payload);
   }catch(err){
     console.log("전송 실패:", err);
-    btn.disabled = false; btn.textContent = "다시 제출하기";
     alert("기록 저장에 실패했어. 인터넷 연결을 확인하고 다시 눌러줘!");
     return;
   }
